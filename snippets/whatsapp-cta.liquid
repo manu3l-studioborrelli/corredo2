@@ -1,0 +1,114 @@
+{% doc %}
+  Pulsante "Ordina su WhatsApp" per la scheda prodotto.
+
+  Costruisce interamente in Liquid il link wa.me con il messaggio
+  precompilato, cosi' che il link sia valido anche senza JavaScript.
+  Lo script whatsapp-cta.js si limita a due cose: rimpiazzare questo
+  markup con quello ri-renderizzato dal server al cambio variante, e
+  sostituire il segnaposto della quantita'. Non ricostruisce mai il
+  messaggio: la fonte di verita' e' soltanto questo file.
+
+  Lo scoping per sezione non serve qui: lo script cerca il pulsante dentro
+  l'elemento product-info della sezione interessata.
+
+  @param {object} product - Il prodotto da ordinare
+  @param {object} [block] - Il blocco, per shopify_attributes
+
+  @example
+  {% render 'whatsapp-cta', product: product, block: block %}
+{% enddoc %}
+
+{%- capture a_capo %}
+{% endcapture -%}
+
+{%- liquid
+  assign numero = settings.whatsapp_numero | strip | remove: ' ' | remove: '+' | remove: '-' | remove: '(' | remove: ')'
+  assign variante = product.selected_or_first_available_variant
+-%}
+
+{%- if numero != blank and product != blank -%}
+  {%- liquid
+    # Segnaposto della quantita': sole lettere maiuscole, quindi attraversa
+    # url_encode immutato e lo script lo sostituisce con una replace letterale.
+    assign segnaposto_qta = 'QQNUMEROQQ'
+
+    # Il messaggio cambia se la variante non e' acquistabile: su un prodotto
+    # esaurito la domanda utile e' "quando torna", non "vorrei ordinarlo".
+    assign disponibile = false
+    if variante != null and variante.available
+      assign disponibile = true
+    endif
+
+    if disponibile
+      assign modello = settings.whatsapp_messaggio
+      if modello == blank
+        assign modello = 'whatsapp.message_order' | t
+      endif
+    else
+      assign modello = settings.whatsapp_messaggio_esaurito
+      if modello == blank
+        assign modello = 'whatsapp.message_availability' | t
+      endif
+    endif
+
+    # La riga della variante porta con se' il proprio a-capo, cosi' che su un
+    # prodotto senza varianti reali sparisca del tutto senza lasciare una riga
+    # vuota. Nel modello [variante] sta attaccato alla riga successiva.
+    assign riga_variante = ''
+    unless product.has_only_default_variant
+      if variante != null
+        assign riga_variante = 'whatsapp.variant_label' | t
+        assign riga_variante = riga_variante | append: ': ' | append: variante.title | append: a_capo
+      endif
+    endunless
+
+    assign indirizzo = product.url | prepend: request.origin
+    if variante != null
+      assign indirizzo = indirizzo | append: '?variant=' | append: variante.id
+    endif
+
+    assign testo = modello
+    assign testo = testo | replace: '[prodotto]', product.title
+    assign testo = testo | replace: '[variante]', riga_variante
+    assign testo = testo | replace: '[link]', indirizzo
+
+    # Due reso dello stesso identico messaggio:
+    # - testo_uno  quantita' 1, finisce nell'href e funziona senza JavaScript
+    # - testo_qta  con il segnaposto, lo script lo usa quando la quantita' cambia
+    assign testo_uno = testo | replace: '[quantita]', 1 | url_encode
+    assign testo_qta = testo | replace: '[quantita]', segnaposto_qta | url_encode
+
+    assign base = 'https://wa.me/' | append: numero | append: '?text='
+    assign href_uno = base | append: testo_uno
+    assign href_qta = base | append: testo_qta
+  -%}
+
+  <div
+    class="whatsapp-cta"
+    data-whatsapp-cta
+    data-segnaposto="{{ segnaposto_qta }}"
+    data-modello="{{ href_qta | escape }}"
+    {% if block %}
+      {{ block.shopify_attributes }}
+    {% endif %}
+  >
+    <a
+      class="whatsapp-cta__button button button--full-width"
+      href="{{ href_uno }}"
+      target="_blank"
+      rel="noopener"
+      data-whatsapp-link
+    >
+      <span class="whatsapp-cta__icon" aria-hidden="true">
+        {{- 'icon-whatsapp.svg' | inline_asset_content -}}
+      </span>
+      {%- if disponibile -%}
+        {{ 'whatsapp.order' | t }}
+      {%- else -%}
+        {{ 'whatsapp.ask_availability' | t }}
+      {%- endif -%}
+    </a>
+
+    <small class="whatsapp-cta__nota">{{ 'whatsapp.note' | t }}</small>
+  </div>
+{%- endif -%}

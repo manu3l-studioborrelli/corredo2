@@ -372,8 +372,27 @@
           "label": "Vertical space"
         }
       }
-    }
-  },
+    },
+    "whatsapp": {
+      "name": "WhatsApp",
+      "settings": {
+        "paragraph": {
+          "content": "Phone number and messages for the Order on WhatsApp button on the product page."
+        },
+        "whatsapp_numero": {
+          "label": "WhatsApp number",
+          "info": "With the country code and without the + sign, for example 393401234567. If left empty, the button is not shown."
+        },
+        "whatsapp_messaggio": {
+          "label": "Message",
+          "info": "Placeholders: [prodotto], [variante], [quantita], [link]. Leave empty to use the default text."
+        },
+        "whatsapp_messaggio_esaurito": {
+          "label": "Message when sold out",
+          "info": "Used when the selected variant cannot be purchased. Same placeholders. Leave empty to use the default text."
+        }
+      }
+    }  },
   "sections": {
     "all": {
       "animation": {
@@ -1916,6 +1935,9 @@
     "main-product": {
       "name": "Product information",
       "blocks": {
+        "whatsapp_cta": {
+          "name": "Order on WhatsApp"
+        },
         "text": {
           "name": "Text",
           "settings": {

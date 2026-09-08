@@ -528,5 +528,14 @@
       "send_on": "YYYY-MM-DD",
       "send_on_label": "Send on (optional)"
     }
+  },
+  "whatsapp": {
+    "order": "Order on WhatsApp",
+    "ask_availability": "Ask on WhatsApp",
+    "variant_label": "Variant",
+    "note": "Opens WhatsApp with the message already written",
+    "message_order": "Hello! I would like to order:\n\n[prodotto]\n[variante]Quantity: [quantita]\n\n[link]",
+    "message_availability": "Hello! I would like to know when this is back in stock:\n\n[prodotto]\n[variante]\n[link]"
   }
+
 }

@@ -539,5 +539,14 @@
       "expanded": "Modulo destinatario del buono regalo espanso",
       "collapsed": "Modulo destinatario del buono regalo compresso"
     }
+  },
+  "whatsapp": {
+    "order": "Ordina su WhatsApp",
+    "ask_availability": "Chiedi su WhatsApp",
+    "variant_label": "Variante",
+    "note": "Si apre WhatsApp con il messaggio già scritto",
+    "message_order": "Ciao! Vorrei ordinare:\n\n[prodotto]\n[variante]Quantità: [quantita]\n\n[link]",
+    "message_availability": "Ciao! Vorrei sapere quando torna disponibile:\n\n[prodotto]\n[variante]\n[link]"
   }
+
 }

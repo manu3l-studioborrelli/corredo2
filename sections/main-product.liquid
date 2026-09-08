@@ -499,6 +499,10 @@
                     section_id: section.id,
                     show_pickup_availability: true
                   -%}
+                {%- when 'whatsapp_cta' -%}
+                  {{ 'component-whatsapp-cta.css' | asset_url | stylesheet_tag }}
+                  <script src="{{ 'whatsapp-cta.js' | asset_url }}" defer="defer"></script>
+                  {%- render 'whatsapp-cta', block: block, product: product -%}
                 {%- when 'rating' -%}
                   {%- if product.metafields.reviews.rating.value != blank -%}
                     <div class="rating-wrapper">
@@ -942,6 +946,11 @@
           "info": "t:sections.main-product.blocks.buy_buttons.settings.show_gift_card_recipient.info"
         }
       ]
+    },
+    {
+      "type": "whatsapp_cta",
+      "name": "t:sections.main-product.blocks.whatsapp_cta.name",
+      "limit": 1
     },
     {
       "type": "description",

@@ -372,8 +372,27 @@
           "label": "Menu"
         }
       }
-    }
-  },
+    },
+    "whatsapp": {
+      "name": "WhatsApp",
+      "settings": {
+        "paragraph": {
+          "content": "Numero e messaggi del pulsante «Ordina su WhatsApp» nella scheda prodotto."
+        },
+        "whatsapp_numero": {
+          "label": "Numero WhatsApp",
+          "info": "Con il prefisso internazionale e senza il segno +. Per l'Italia: 39 seguito dal numero, per esempio 393401234567. Se resta vuoto, il pulsante non compare."
+        },
+        "whatsapp_messaggio": {
+          "label": "Messaggio",
+          "info": "Segnaposti: [prodotto], [variante], [quantita], [link]. Lascia vuoto per usare il testo predefinito."
+        },
+        "whatsapp_messaggio_esaurito": {
+          "label": "Messaggio se esaurito",
+          "info": "Usato quando la variante scelta non è acquistabile. Stessi segnaposti. Lascia vuoto per usare il testo predefinito."
+        }
+      }
+    }  },
   "sections": {
     "all": {
       "padding": {
@@ -1612,6 +1631,9 @@
     "main-product": {
       "name": "Informazioni di prodotto",
       "blocks": {
+        "whatsapp_cta": {
+          "name": "Ordina su WhatsApp"
+        },
         "text": {
           "name": "Testo",
           "settings": {

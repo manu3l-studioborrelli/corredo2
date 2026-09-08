@@ -1466,5 +1466,32 @@
         "label": "t:settings_schema.customer_accounts.settings.customer_account_menu.label"
       }
     ]
+  },
+  {
+    "name": "t:settings_schema.whatsapp.name",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:settings_schema.whatsapp.settings.paragraph.content"
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_numero",
+        "label": "t:settings_schema.whatsapp.settings.whatsapp_numero.label",
+        "info": "t:settings_schema.whatsapp.settings.whatsapp_numero.info"
+      },
+      {
+        "type": "textarea",
+        "id": "whatsapp_messaggio",
+        "label": "t:settings_schema.whatsapp.settings.whatsapp_messaggio.label",
+        "info": "t:settings_schema.whatsapp.settings.whatsapp_messaggio.info"
+      },
+      {
+        "type": "textarea",
+        "id": "whatsapp_messaggio_esaurito",
+        "label": "t:settings_schema.whatsapp.settings.whatsapp_messaggio_esaurito.label",
+        "info": "t:settings_schema.whatsapp.settings.whatsapp_messaggio_esaurito.info"
+      }
+    ]
   }
 ]

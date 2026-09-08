@@ -1,0 +1,66 @@
+/**
+ * Pulsante "Ordina su WhatsApp".
+ *
+ * Foglio dedicato: il §5 del documento di progetto vieta di modificare i CSS
+ * di Dawn, che gli aggiornamenti upstream sovrascriverebbero.
+ *
+ * Il §3 impone pari dignita' fra i due percorsi d'acquisto. Qui questo si
+ * traduce in: stessa larghezza, stessa altezza, stesso corpo del testo del
+ * pulsante "Aggiungi al carrello". Cambia solo il colore, perche' i due
+ * pulsanti portano a due posti diversi e il cliente deve distinguerli.
+ */
+
+.whatsapp-cta {
+  margin-top: 1rem;
+}
+
+/**
+ * Dawn colora i pulsanti con due variabili che contengono terne RGB, non
+ * colori completi: le sovrascriviamo invece di combattere con !important.
+ *
+ * Il verde non e' quello del marchio (#25D366): su bianco quel verde da' un
+ * contrasto di circa 2,1:1 e non passa il WCAG AA richiesto dal §3. Questo
+ * arriva a 5,1:1 restando riconoscibile.
+ */
+.whatsapp-cta__button {
+  --color-button: 16, 124, 110;
+  --color-button-text: 255, 255, 255;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+
+  /* §3: area di tocco generosa, minimo 44 x 44 px. */
+  min-height: 4.8rem;
+
+  /* §3: testo leggibile senza zoom. Dawn si ferma a 1.5rem, cioe' 15 px. */
+  font-size: 1.6rem;
+}
+
+/**
+ * Porta "Aggiungi al carrello" allo stesso corpo, altrimenti i due pulsanti
+ * non avrebbero piu' pari peso visivo. Vale solo dentro la scheda prodotto.
+ */
+.product-form__submit {
+  min-height: 4.8rem;
+  font-size: 1.6rem;
+}
+
+.whatsapp-cta__icon {
+  display: flex;
+  flex: 0 0 auto;
+}
+
+.whatsapp-cta__icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.whatsapp-cta__nota {
+  display: block;
+  margin-top: 0.6rem;
+  text-align: center;
+  font-size: 1.4rem;
+  color: rgba(var(--color-foreground), 0.75);
+}
