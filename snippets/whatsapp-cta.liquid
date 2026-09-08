@@ -51,14 +51,35 @@
       endif
     endif
 
-    # La riga della variante porta con se' il proprio a-capo, cosi' che su un
-    # prodotto senza varianti reali sparisca del tutto senza lasciare una riga
-    # vuota. Nel modello [variante] sta attaccato alla riga successiva.
+    # Due modi di scrivere la variante, entrambi disponibili nel modello.
+    #
+    # [dettagli] elenca ogni opzione su una riga sua, con il proprio nome:
+    #     Colore: Blu
+    #     Taglia: Matrimoniale
+    # E' la forma che serve a chi in negozio prende in carico l'ordine: legge
+    # cosa preparare senza dover interpretare una sigla.
+    #
+    # [variante] resta la forma compatta di Shopify, "Blu / Matrimoniale", per
+    # chi preferisce un messaggio di una riga sola.
+    #
+    # Entrambe portano con se' il proprio a-capo finale, cosi' che su un
+    # prodotto senza varianti reali spariscano senza lasciare righe vuote:
+    # nel modello stanno attaccate alla riga successiva.
     assign riga_variante = ''
+    assign righe_dettagli = ''
     unless product.has_only_default_variant
       if variante != null
         assign riga_variante = 'whatsapp.variant_label' | t
         assign riga_variante = riga_variante | append: ': ' | append: variante.title | append: a_capo
+
+        capture righe_dettagli
+          for opzione in variante.options_with_values
+            echo opzione.name
+            echo ': '
+            echo opzione.value
+            echo a_capo
+          endfor
+        endcapture
       endif
     endunless
 
@@ -69,6 +90,7 @@
 
     assign testo = modello
     assign testo = testo | replace: '[prodotto]', product.title
+    assign testo = testo | replace: '[dettagli]', righe_dettagli
     assign testo = testo | replace: '[variante]', riga_variante
     assign testo = testo | replace: '[link]', indirizzo
 

@@ -385,7 +385,7 @@
         },
         "whatsapp_messaggio": {
           "label": "Message",
-          "info": "Placeholders: [prodotto], [variante], [quantita], [link]. Leave empty to use the default text."
+          "info": "Placeholders: [prodotto], [dettagli] one line per option with its name, [variante] the compact one-line form, [quantita], [link]. Leave empty to use the default text."
         },
         "whatsapp_messaggio_esaurito": {
           "label": "Message when sold out",

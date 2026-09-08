@@ -385,11 +385,11 @@
         },
         "whatsapp_messaggio": {
           "label": "Messaggio",
-          "info": "Segnaposti: [prodotto], [variante], [quantita], [link]. Lascia vuoto per usare il testo predefinito."
+          "info": "Segnaposti: [prodotto], [dettagli] una riga per ogni opzione con il suo nome, [variante] la forma compatta su una riga, [quantita], [link]. Lascia vuoto per usare il testo predefinito."
         },
         "whatsapp_messaggio_esaurito": {
           "label": "Messaggio se esaurito",
-          "info": "Usato quando la variante scelta non è acquistabile. Stessi segnaposti. Lascia vuoto per usare il testo predefinito."
+          "info": "Usato quando la variante scelta non è acquistabile. Stessi segnaposti di sopra. Lascia vuoto per usare il testo predefinito."
         }
       }
     }  },

@@ -237,6 +237,33 @@ Il messaggio precompilato deve contenere:
 * quantità selezionata
 * URL della scheda prodotto
 
+**Il messaggio serve a chi prende in carico l'ordine, non al cliente.** Va scritto perché la commessa legga cosa preparare senza interpretare sigle. Per questo la variante è elencata opzione per opzione, con il proprio nome:
+
+```
+Salve! Mi interessa questo prodotto:
+
+Completo lenzuola king
+
+Dettagli:
+Colore: Blu polvere
+Misura: King
+Quantità: 2
+
+https://…/products/…?variant=…
+```
+
+Segnaposti disponibili nel modello, modificabili dall'editor:
+
+|Segnaposto|Resa|
+|-|-|
+|`[prodotto]`|Titolo del prodotto|
+|`[dettagli]`|Una riga per opzione: `Colore: Blu`, `Misura: King`. Costruito da `variant.options_with_values`|
+|`[variante]`|Forma compatta di Shopify: `Blu / King`. Per chi preferisce una riga sola|
+|`[quantita]`|Quantità scelta|
+|`[link]`|URL assoluto della scheda, con `?variant=`|
+
+`[dettagli]` e `[variante]` portano con sé il proprio a-capo finale: su un prodotto senza varianti reali spariscono senza lasciare righe vuote. Nel modello vanno quindi attaccati alla riga successiva, non seguiti da un a-capo scritto a mano.
+
 **Requisiti tecnici**
 
 * Numero di telefono e modello del messaggio esposti come **impostazioni dello schema**, modificabili dall'editor senza intervento dello Studio
@@ -415,3 +442,4 @@ Una riga per ogni intervento. Formato: data, area, cosa è cambiato, perché.
 
 
 
+|2026-09-09|scheda prodotto|Messaggio WhatsApp riscritto con i dettagli elencati opzione per opzione|Il messaggio serve alla commessa che prende in carico l'ordine: «Colore: Blu / Misura: King» si legge, «Blu / King» va interpretato|
