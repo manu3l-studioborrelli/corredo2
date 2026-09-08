@@ -7,10 +7,10 @@ Tema Shopify (Dawn) per Corredo 2 — e-commerce con doppio percorso d'acquisto.
 
 |||
 |-|-|
-|Ultimo aggiornamento|2026-09-07|
-|Stato progetto|Setup ambiente|
-|Versione tema|0.1.0|
-|Store di sviluppo|`corredo2-dev.myshopify.com`|
+|Ultimo aggiornamento|2026-09-08|
+|Stato progetto|Sviluppo — base Dawn in italiano, doppia CTA realizzata|
+|Versione tema|0.2.0|
+|Store di sviluppo|`corredo-2-bhrhuy2x.myshopify.com`|
 |Store di produzione|non ancora creato (trasferimento a fine progetto)|
 
 \---
@@ -113,9 +113,9 @@ Derivano dal punto 1 e valgono per ogni intervento sull'interfaccia.
 |Componente|Scelta|Motivo|
 |-|-|-|
 |Piattaforma|Shopify, piano Basic|Checkout affidabile, varianti native, catalogo Meta integrato, hosting incluso|
-|Tema base|Dawn (upstream `Shopify/dawn`)|Tema di riferimento, aggiornabile via `upstream`, adatto a un flusso Git|
-|Runtime|Node 20 LTS o superiore|Requisito Shopify CLI|
-|CLI|`@shopify/cli` più recente|`theme dev`, `theme check`, `theme push`, `theme pull`|
+|Tema base|**Dawn 16.0.0** (upstream `Shopify/dawn`)|Tema di riferimento, aggiornabile via `upstream`, adatto a un flusso Git|
+|Runtime|Node 20 LTS o superiore (in uso: 24.14.0)|Requisito Shopify CLI|
+|CLI|`@shopify/cli` più recente (in uso: 4.7.1)|`theme dev`, `theme check`, `theme push`, `theme pull`|
 |Versionamento|Git + GitHub, integrazione nativa Shopify|Sincronizzazione bidirezionale branch ↔ tema|
 |Assistenza AI|Claude Code + plugin `shopify-ai-toolkit`|Documentazione Shopify aggiornata invece di Liquid a memoria|
 
@@ -131,6 +131,16 @@ shopify theme push --unpublished  # carica come tema non pubblicato per anteprim
 ```
 
 `shopify.theme.toml` definisce gli ambienti. Non contiene segreti e va versionato.
+
+### Baseline di Theme Check
+
+Dawn 16.0.0 non è pulito di suo: `shopify theme check` segnala **0 errori e 11 warning** ereditati, fra cui sei falsi positivi `UndefinedObject` su `section` dentro gli snippet e su `scheme_classes` nei layout. Il §9 chiede che non compaiano rilievi **nuovi**, non che il conteggio sia zero. Quando serve confrontare:
+
+```bash
+shopify theme check --output json > dopo.json
+```
+
+e si confrontano coppia regola/file con la baseline.
 
 \---
 
@@ -166,23 +176,37 @@ L'integrazione GitHub di Shopify collega **un branch a un tema** e sincronizza *
 
 > Da aggiornare a ogni aggiunta, rinomina o eliminazione di file custom.
 
+Tema base: **Dawn 16.0.0**, agganciato al remote `upstream` (`Shopify/dawn`). Il merge iniziale conserva `upstream/main` come genitore, quindi gli aggiornamenti si applicano con un normale `git merge upstream/main`.
+
 ### File custom
 
 |File|Tipo|Scopo|Stato|
 |-|-|-|-|
-|—|—|Nessun file custom ancora creato|—|
+|`snippets/whatsapp-cta.liquid`|snippet|Costruisce il link `wa.me` e il messaggio precompilato. Unica fonte di verità del messaggio|fatto|
+|`assets/whatsapp-cta.js`|script|Allinea il pulsante a variante e quantità. Non ricostruisce mai il messaggio|fatto|
+|`assets/component-whatsapp-cta.css`|foglio di stile|Stili della CTA. Foglio dedicato come impone il §5|fatto|
+|`assets/icon-whatsapp.svg`|icona|Glifo WhatsApp, `currentColor`|fatto|
+|`.github/workflows/theme-check.yml`|CI|Esegue Theme Check a ogni push e PR|fatto|
 
 ### Modifiche a file Dawn
 
 |File Dawn|Modifica|Motivo|Stato|
 |-|-|-|-|
-|—|—|—|—|
+|`sections/main-product.liquid`|Blocco `whatsapp_cta` (limite 1) e relativo ramo `when`|Punto di innesto della CTA, §7.1|fatto|
+|`templates/product.json`|Blocco attivo subito dopo `buy_buttons`; checkout accelerato spento|Le due CTA devono stare vicine e visibili insieme, e restare entrambe piene, §3|fatto|
+|`config/settings_schema.json`|Gruppo «WhatsApp»: numero e due messaggi|Il §7.1 vuole il numero modificabile dall'editor|fatto|
+|`locales/it.default.schema.json`|4 nomi di sezione accorciati sotto i 25 caratteri|Le traduzioni ufficiali Shopify sforavano il limite e producevano errori Theme Check|fatto|
+|`templates/*.json`, `sections/header-group.json`|9 stringhe di vetrina tradotte|Restavano in inglese fuori da `locales`|fatto|
+|`.github/`|Rimossa l'automazione del repository pubblico Shopify|`cla.yml` e `stale.yml` agirebbero contro di noi|fatto|
 
 ### Localizzazione
 
 * Lingua predefinita del tema: **italiano**
-* File attivo: `locales/it.json`
-* `locales/en.default.json` di Dawn: da sostituire come default all'inizio del lavoro, non a fine progetto
+* File attivi: `locales/it.default.json` e `locales/it.default.schema.json`
+* L'inglese resta come lingua secondaria in `locales/en.json` e `locales/en.schema.json`
+* Shopify ammette **un solo** file `*.default.json` per tipo: la lingua predefinita si cambia rinominando, non con un'impostazione
+* La traduzione italiana di Dawn è completa: zero chiavi mancanti su 383 stringhe di vetrina e 1141 di editor
+* Chiavi custom sotto lo spazio `whatsapp.*`, con nomi in inglese come tutte le altre di Dawn e valori in italiano
 
 \---
 
@@ -278,12 +302,12 @@ Un intervento è concluso quando: il codice funziona sul server locale, `theme c
 ## 10\. Sequenza di lavoro
 
 * \[x] Partner account e development store
-* \[ ] Repository con Dawn, `staging` collegato a un tema non pubblicato
-* \[ ] Ambiente locale, Claude Code, plugin Shopify
-* \[ ] Italiano come lingua predefinita del tema
+* \[~] Repository con Dawn — repository e Dawn 16.0.0 a posto; restano il remote GitHub e il branch `staging` collegato a un tema non pubblicato
+* \[~] Ambiente locale, Claude Code, plugin Shopify — Node e CLI a posto; il plugin MCP `shopify-ai-toolkit` **non è ancora collegato**
+* \[x] Italiano come lingua predefinita del tema
 * \[ ] Palette e caratteri da Fase 1 applicati alle impostazioni del tema
 * \[ ] Struttura pagine secondo il prototipo Figma approvato
-* \[ ] Scheda prodotto con doppia CTA
+* \[x] Scheda prodotto con doppia CTA — da ricollaudare su dispositivi reali prima della consegna
 * \[ ] Configurazione spedizioni e ritiro in negozio
 * \[ ] Metodi di pagamento
 * \[ ] Pagine legali e banner cookie
@@ -311,6 +335,15 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 |2026-09|Dawn anziché tema a pagamento|I temi premium sono pesanti, i loro aggiornamenti sovrascrivono le personalizzazioni e mal si conciliano con un flusso Git|
 |2026-09|Sviluppo su development store, trasferimento a fine progetto|Il cliente non paga l'abbonamento durante i due mesi di sviluppo|
 |2026-09|Nessun build step nel tema|L'integrazione GitHub vuole i file del tema nella root; una pipeline imporrebbe un branch di deploy separato|
+|2026-09-08|Dawn 16.0.0 al posto dello Skeleton Theme che era stato clonato|Skeleton è un kit per sviluppatori: 3 snippet, nessun carrello, nessun selettore varianti, solo inglese. Dawn porta 39 snippet, 48 sezioni e la traduzione italiana ufficiale completa. A 1.500 € ricostruire un negozio da zero non sta nel preventivo|
+|2026-09-08|Merge con `--allow-unrelated-histories` invece di ripartire da un clone|Tiene `upstream/main` come genitore: gli aggiornamenti Dawn si applicano con un normale `git merge`, come chiede il §4|
+|2026-09-08|Il messaggio WhatsApp nasce **solo** dal Liquid|Dawn ri-renderizza la sezione lato server al cambio variante e passa l'HTML nell'evento. Prendendo il pulsante da lì, il messaggio inviato e quello reso senza JavaScript sono lo stesso codice e non possono divergere: è il guasto contro cui mette in guardia la nota del §7.1|
+|2026-09-08|Quantità gestita con un segnaposto alfabetico dentro l'URL già codificato|`url_encode` lo attraversa immutato e lo script fa una sola sostituzione letterale. Evita un secondo codificatore in JavaScript, che diverge sempre su accenti e spazi|
+|2026-09-08|Numero e messaggi come impostazioni **globali**, non del blocco|Il numero è uno solo per il negozio: va cambiato in un posto solo, non in ogni scheda prodotto|
+|2026-09-08|Nessun valore predefinito nelle impostazioni WhatsApp|A campo vuoto lo snippet ripiega sulle stringhe di `locales`, così nessun testo italiano finisce scritto in chiaro fuori dai file di localizzazione (§3)|
+|2026-09-08|Verde `#107C6E` invece del verde del marchio `#25D366`|Il verde WhatsApp su bianco dà circa 2,1:1 e non passa il WCAG AA imposto dal §3. Questo dà 5,1:1 restando riconoscibile|
+|2026-09-08|Rimossa la cartella `.github` di Dawn|È l'automazione del repository pubblico Shopify: `cla.yml` chiederebbe di firmare il CLA a ogni PR e `stale.yml` chiuderebbe le nostre issue. Sostituita con il solo Theme Check|
+|2026-09-08|Disattivato il checkout accelerato (`show_dynamic_checkout: false`) sulla scheda prodotto|Con l'impostazione attiva Dawn assegna ad «Aggiungi al carrello» la classe `button--secondary`, che si riempie con il **colore di sfondo** dello schema: diventa un pulsante in outline mentre quello WhatsApp resta pieno. Il percorso WhatsApp dominava visivamente, che è esattamente il «subordinato all'altro» vietato dal §3. Spento anche perché al pubblico del §1 un terzo pulsante di pagamento accelerato aggiunge confusione. **Da confermare**: è un click nell'editor per riattivarlo, ma allora va rivisto anche il foglio di stile|
 
 \---
 
@@ -326,9 +359,17 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 
 ### Da decidere internamente
 
-* \[ ] Peso visivo relativo dei due pulsanti: pari dignità è il vincolo, la resa concreta va provata sul prototipo
-* \[ ] Comportamento della CTA WhatsApp su variante esaurita
-* \[ ] Testo predefinito del messaggio WhatsApp
+* \[~] Peso visivo relativo dei due pulsanti — stessa larghezza, stessa altezza (48 px), stesso corpo (16 px), entrambi **pieni**, colore diverso. La parità si regge anche sul checkout accelerato spento: se lo si riattiva, «Aggiungi al carrello» torna in outline e la parità salta. Da provare sul prototipo
+* \[~] Comportamento della CTA WhatsApp su variante esaurita — realizzato: il pulsante **resta attivo** e il messaggio cambia in «quando torna disponibile». Su cinque ordini al giorno con negozio fisico quella richiesta vale; è configurabile. **Da confermare**
+* \[~] Testo predefinito del messaggio WhatsApp — realizzato un default in `locales`, sovrascrivibile dall'editor. **Da confermare**
+* \[ ] Corpo del testo di Dawn: `body` è a **15 px**, il §3 ne chiede 16 come minimo. Sui due pulsanti della scheda prodotto è già corretto, ma la scelta va presa per tutto il tema, insieme a palette e caratteri della Fase 1. Si può agire sull'impostazione «scala del corpo del testo» invece che sui CSS
+* \[ ] Riabilitare `MatchingTranslations` in `.theme-check.yml`: Dawn la disattiva perché spedisce 25 lingue che restano indietro, ma a noi servono due lingue sole e la regola intercetterebbe le chiavi mancanti
+
+### Setup ancora da completare
+
+* \[ ] Remote GitHub e branch `staging` collegato a un tema non pubblicato (§5). Oggi il repository è solo locale
+* \[ ] Collegare il plugin MCP `shopify-ai-toolkit`, che AGENTS.md dà per obbligatorio. Va autorizzato da una sessione interattiva
+* \[ ] Impostare numero WhatsApp e messaggi dall'editor: senza numero il pulsante **non compare**, per scelta
 
 ### Emerso durante lo sviluppo, fuori perimetro
 
@@ -345,6 +386,13 @@ Una riga per ogni intervento. Formato: data, area, cosa è cambiato, perché.
 |Data|Area|Modifica|Motivo|
 |-|-|-|-|
 |2026-09-07|progetto|Creazione del documento di progetto|Avvio sviluppo dopo accettazione del preventivo|
+|2026-09-08|repository|Inizializzato Git sullo stato di partenza|Il §5 descrive un flusso a branch, ma il repository non era versionato|
+|2026-09-08|tema|Sostituito lo Skeleton Theme con Dawn 16.0.0|Era stato clonato il repository sbagliato: il §4 e il §11 stabiliscono Dawn|
+|2026-09-08|localizzazione|Italiano come lingua predefinita, 4 nomi di sezione accorciati|Requisito del §6. Le traduzioni ufficiali sforavano il limite di 25 caratteri e producevano errori Theme Check|
+|2026-09-08|repository|Rimossa l'automazione GitHub di Dawn, aggiunto il solo Theme Check|`cla.yml` e `stale.yml` avrebbero agito contro le nostre PR e issue|
+|2026-09-08|scheda prodotto|Realizzata la doppia CTA «Ordina su WhatsApp» (§7.1)|Funzione centrale del progetto|
+|2026-09-08|contenuti|Tradotte 9 stringhe di vetrina rimaste in inglese|Fuori da `locales`, il cliente le vedeva in inglese|
+|2026-09-08|scheda prodotto|Correzioni da audit: nota portata a 16 px, checkout accelerato spento, altre 2 stringhe tradotte|Un esame indipendente ha trovato una violazione del corpo minimo, la parità dei pulsanti che non si realizzava e due stringhe inglesi che il primo controllo aveva perso|
 
 
 

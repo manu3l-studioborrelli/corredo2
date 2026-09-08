@@ -8,6 +8,14 @@
  * traduce in: stessa larghezza, stessa altezza, stesso corpo del testo del
  * pulsante "Aggiungi al carrello". Cambia solo il colore, perche' i due
  * pulsanti portano a due posti diversi e il cliente deve distinguerli.
+ *
+ * Attenzione: la pari dignita' si regge anche su un'impostazione fuori da
+ * questo foglio. Con "show_dynamic_checkout" attivo, buy-buttons.liquid da'
+ * ad "Aggiungi al carrello" la classe .button--secondary, che in Dawn si
+ * riempie con il colore di SFONDO dello schema: diventa un pulsante in
+ * outline, mentre questo resta pieno, e il percorso WhatsApp domina.
+ * Per questo templates/product.json tiene "show_dynamic_checkout": false.
+ * Se qualcuno lo riattiva dall'editor, va rivisto anche questo foglio.
  */
 
 .whatsapp-cta {
@@ -57,10 +65,15 @@
   height: 2rem;
 }
 
+/**
+ * §3: corpo minimo 16 px. Vale anche qui, anzi soprattutto qui: e' l'unica
+ * frase che spiega cosa succede toccando il pulsante, ed e' rivolta proprio
+ * al cliente meno esperto del §1.
+ */
 .whatsapp-cta__nota {
   display: block;
   margin-top: 0.6rem;
   text-align: center;
-  font-size: 1.4rem;
+  font-size: 1.6rem;
   color: rgba(var(--color-foreground), 0.75);
 }
