@@ -6,7 +6,7 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "heading": "Browse our latest products",
+            "heading": "Scopri le ultime novità",
             "heading_size": "h0"
           }
         },
@@ -42,7 +42,7 @@
     "featured_collection": {
       "type": "featured-collection",
       "settings": {
-        "title": "Featured products",
+        "title": "Prodotti in evidenza",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
