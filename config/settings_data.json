@@ -2,6 +2,7 @@
   "current": "Dawn",
   "presets": {
     "Dawn": {
+      "whatsapp_numero": "393513521255",
       "logo_width": 90,
       "customer_account_menu": "customer-account-main-menu",
       "color_schemes": {

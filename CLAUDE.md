@@ -187,6 +187,7 @@ Tema base: **Dawn 16.0.0**, agganciato al remote `upstream` (`Shopify/dawn`). Il
 |`assets/component-whatsapp-cta.css`|foglio di stile|Stili della CTA. Foglio dedicato come impone il §5|fatto|
 |`assets/icon-whatsapp.svg`|icona|Glifo WhatsApp, `currentColor`|fatto|
 |`.github/workflows/theme-check.yml`|CI|Esegue Theme Check a ogni push e PR|fatto|
+|`.mcp.json`|configurazione|Server MCP `@shopify/dev-mcp`, richiesto da AGENTS.md. Versionato nel repository così chi lavora al tema se lo ritrova configurato|fatto|
 
 ### Modifiche a file Dawn
 
@@ -315,7 +316,7 @@ Un intervento è concluso quando: il codice funziona sul server locale, `theme c
 
 * \[x] Partner account e development store
 * \[~] Repository con Dawn — repository e Dawn 16.0.0 a posto; restano il remote GitHub e il branch `staging` collegato a un tema non pubblicato
-* \[~] Ambiente locale, Claude Code, plugin Shopify — Node e CLI a posto; il plugin MCP `shopify-ai-toolkit` **non è ancora collegato**
+* \[~] Ambiente locale, Claude Code, plugin Shopify — Node, CLI e MCP Shopify a posto; resta da autenticare Shopify CLI, che richiede un terminale interattivo
 * \[x] Italiano come lingua predefinita del tema
 * \[ ] Palette e caratteri da Fase 1 applicati alle impostazioni del tema
 * \[ ] Struttura pagine secondo il prototipo Figma approvato
@@ -355,6 +356,8 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 |2026-09-08|Nessun valore predefinito nelle impostazioni WhatsApp|A campo vuoto lo snippet ripiega sulle stringhe di `locales`, così nessun testo italiano finisce scritto in chiaro fuori dai file di localizzazione (§3)|
 |2026-09-08|Verde `#107C6E` invece del verde del marchio `#25D366`|Il verde WhatsApp su bianco dà circa 2,1:1 e non passa il WCAG AA imposto dal §3. Questo dà 5,1:1 restando riconoscibile|
 |2026-09-08|Rimossa la cartella `.github` di Dawn|È l'automazione del repository pubblico Shopify: `cla.yml` chiederebbe di firmare il CLA a ogni PR e `stale.yml` chiuderebbe le nostre issue. Sostituita con il solo Theme Check|
+|2026-09-08|MCP Shopify configurato come `.mcp.json` di progetto anziché plugin personale|Il plugin `shopify-ai-toolkit` non è nel catalogo dell'organizzazione, e una configurazione personale non seguirebbe il repository. `@shopify/dev-mcp` non richiede autenticazione e gira in locale via `npx`: messo nel repository vale per chiunque apra il progetto. Verificato: espone `learn_shopify_api`, `search_docs_chunks` e `validate_theme`|
+|2026-09-08|Numero WhatsApp di prova scritto in `config/settings_data.json`, in deroga al §5|Il §5 vieta di toccarlo a mano perché in conflitto vince la versione che arriva da Shopify. Finché nessun tema è collegato quel conflitto non può esistere, e senza numero il pulsante non compare, quindi non sarebbe collaudabile. **Il numero definitivo va messo dall'editor, non qui**: al primo salvataggio Shopify riscrive il file e questo valore sparisce, come deve|
 |2026-09-08|Il pulsante WhatsApp si spegne al tocco sull'opzione e si riaccende solo con la risposta del server|Dawn non pubblica `variantChange` quando la combinazione scelta non esiste come variante: esce prima con un `return`. Spegnere in anticipo è l'unico modo per non lasciare in pagina un link che ordina l'articolo sbagliato. Lo stato si scioglie da sé quando la variante esiste, perché il markup ri-renderizzato arriva pulito. Se la richiesta al server fallisce il pulsante resta spento, che è il modo giusto di rompersi|
 |2026-09-08|Disattivato il checkout accelerato (`show_dynamic_checkout: false`) sulla scheda prodotto|Con l'impostazione attiva Dawn assegna ad «Aggiungi al carrello» la classe `button--secondary`, che si riempie con il **colore di sfondo** dello schema: diventa un pulsante in outline mentre quello WhatsApp resta pieno. Il percorso WhatsApp dominava visivamente, che è esattamente il «subordinato all'altro» vietato dal §3. Spento anche perché al pubblico del §1 un terzo pulsante di pagamento accelerato aggiunge confusione. **Da confermare**: è un click nell'editor per riattivarlo, ma allora va rivisto anche il foglio di stile|
 
@@ -380,9 +383,10 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 
 ### Setup ancora da completare
 
-* \[ ] Remote GitHub e branch `staging` collegato a un tema non pubblicato (§5). Oggi il repository è solo locale
-* \[ ] Collegare il plugin MCP `shopify-ai-toolkit`, che AGENTS.md dà per obbligatorio. Va autorizzato da una sessione interattiva
-* \[ ] Impostare numero WhatsApp e messaggi dall'editor: senza numero il pulsante **non compare**, per scelta
+* \[ ] Remote GitHub e branch `staging` collegato a un tema non pubblicato (§5). Oggi il repository è solo locale. Serve `gh auth login` in un terminale vero
+* \[x] MCP Shopify configurato in `.mcp.json` e verificato funzionante. Va approvato una volta all'apertura del progetto
+* \[ ] Autenticare Shopify CLI: `shopify auth login` **non funziona da qui**, richiede un terminale interattivo
+* \[~] Numero WhatsApp — impostato `393513521255` **solo per le prove**. Il definitivo va messo dall'editor, non nel file
 
 ### Emerso durante lo sviluppo, fuori perimetro
 
@@ -407,6 +411,7 @@ Una riga per ogni intervento. Formato: data, area, cosa è cambiato, perché.
 |2026-09-08|contenuti|Tradotte 9 stringhe di vetrina rimaste in inglese|Fuori da `locales`, il cliente le vedeva in inglese|
 |2026-09-08|scheda prodotto|Correzioni da audit: nota portata a 16 px, checkout accelerato spento, altre 2 stringhe tradotte|Un esame indipendente ha trovato una violazione del corpo minimo, la parità dei pulsanti che non si realizzava e due stringhe inglesi che il primo controllo aveva perso|
 |2026-09-08|scheda prodotto|Il pulsante WhatsApp si spegne su combinazione di opzioni inesistente|Dawn esce prima di pubblicare `variantChange`: il pulsante restava attivo con il link della variante precedente e avrebbe mandato in chat ordini sbagliati. È il guasto previsto dalla nota del §7.1, trovato da due lenti indipendenti e confermato da due scettici|
+|2026-09-08|ambiente|Configurato `.mcp.json` con `@shopify/dev-mcp`, impostato il numero WhatsApp di prova|AGENTS.md richiede il toolkit Shopify; senza numero la CTA non è collaudabile|
 
 
 
