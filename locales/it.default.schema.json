@@ -1539,7 +1539,7 @@
       }
     },
     "main-list-collections": {
-      "name": "Pagina con l'elenco delle collezioni",
+      "name": "Elenco collezioni",
       "settings": {
         "title": {
           "label": "Titolo",
@@ -2269,7 +2269,7 @@
       }
     },
     "newsletter": {
-      "name": "Iscrizione alla newsletter",
+      "name": "Iscrizione newsletter",
       "settings": {
         "full_width": {
           "label": "Larghezza intera"
@@ -2302,7 +2302,7 @@
         }
       },
       "presets": {
-        "name": "Iscrizione alla newsletter"
+        "name": "Iscrizione newsletter"
       }
     },
     "page": {
@@ -2493,7 +2493,7 @@
       }
     },
     "featured-product": {
-      "name": "Sezione \"prodotto in primo piano\"",
+      "name": "Prodotto in primo piano",
       "blocks": {
         "text": {
           "name": "Testo",
@@ -2633,11 +2633,11 @@
         }
       },
       "presets": {
-        "name": "Sezione \"prodotto in primo piano\""
+        "name": "Prodotto in primo piano"
       }
     },
     "email-signup-banner": {
-      "name": "Banner di iscrizione alla newsletter",
+      "name": "Banner newsletter",
       "settings": {
         "paragraph": {
           "content": "Aggiunta di iscrizioni [profili cliente](https://help.shopify.com/manual/customers/manage-customers)"
@@ -2769,7 +2769,7 @@
         }
       },
       "presets": {
-        "name": "Banner di iscrizione alla newsletter"
+        "name": "Banner newsletter"
       }
     },
     "slideshow": {
