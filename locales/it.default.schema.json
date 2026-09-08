@@ -392,7 +392,43 @@
           "info": "Usato quando la variante scelta non è acquistabile. Stessi segnaposti di sopra. Lascia vuoto per usare il testo predefinito."
         }
       }
-    }  },
+    },
+    "negozio": {
+      "name": "Meta e negozio",
+      "settings": {
+        "paragraph": {
+          "content": "Verifica del dominio per i tag prodotto su Instagram, e dati del punto vendita per la ricerca locale."
+        },
+        "meta_domain_verification": {
+          "label": "Codice di verifica dominio Meta",
+          "info": "Da Business Suite: Impostazioni, Sicurezza del brand, Domini, Aggiungi, Meta tag. Incolla qui solo il valore fra virgolette di content, non tutto il tag."
+        },
+        "header_negozio": {
+          "content": "Punto vendita"
+        },
+        "negozio_via": {
+          "label": "Via e numero civico"
+        },
+        "negozio_cap": {
+          "label": "CAP"
+        },
+        "negozio_citta": {
+          "label": "Città"
+        },
+        "negozio_provincia": {
+          "label": "Provincia",
+          "info": "Sigla di due lettere, per esempio NA."
+        },
+        "negozio_telefono": {
+          "label": "Telefono del negozio"
+        },
+        "negozio_orari": {
+          "label": "Orari di apertura",
+          "info": "Una riga per fascia, nel formato Mo-Sa 09:00-13:00. Giorni: Mo Tu We Th Fr Sa Su. Serve ai motori di ricerca, non viene mostrato ai clienti."
+        }
+      }
+    }
+  },
   "sections": {
     "all": {
       "padding": {

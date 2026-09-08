@@ -7,9 +7,9 @@ Tema Shopify (Dawn) per Corredo 2 — e-commerce con doppio percorso d'acquisto.
 
 |||
 |-|-|
-|Ultimo aggiornamento|2026-09-08|
+|Ultimo aggiornamento|2026-09-09|
 |Stato progetto|Sviluppo — base Dawn in italiano, doppia CTA realizzata|
-|Versione tema|0.2.0|
+|Versione tema|0.3.0|
 |Store di sviluppo|`corredo-2-bhrhuy2x.myshopify.com`|
 |Store di produzione|non ancora creato (trasferimento a fine progetto)|
 
@@ -187,7 +187,10 @@ Tema base: **Dawn 16.0.0**, agganciato al remote `upstream` (`Shopify/dawn`). Il
 |`assets/component-whatsapp-cta.css`|foglio di stile|Stili della CTA. Foglio dedicato come impone il §5|fatto|
 |`assets/icon-whatsapp.svg`|icona|Glifo WhatsApp, `currentColor`|fatto|
 |`.github/workflows/theme-check.yml`|CI|Esegue Theme Check a ogni push e PR|fatto|
+|`snippets/negozio-fisico.liquid`|snippet|Meta tag di verifica dominio Meta e dati strutturati `Store` del punto vendita|fatto|
 |`.mcp.json`|configurazione|Server MCP `@shopify/dev-mcp`, richiesto da AGENTS.md. Versionato nel repository così chi lavora al tema se lo ritrova configurato|fatto|
+|`docs/prodotti-prova.csv`|dati|Otto prodotti fittizi che coprono tutti i casi di collaudo del §7.1. **Non fa parte del tema**: `docs/` è escluso in `.shopifyignore`|fatto|
+|`docs/contenuti-pagine.md`|documentazione|Testi pronti per pagine, menu e collezioni da creare in admin|fatto|
 
 ### Modifiche a file Dawn
 
@@ -198,6 +201,10 @@ Tema base: **Dawn 16.0.0**, agganciato al remote `upstream` (`Shopify/dawn`). Il
 |`config/settings_schema.json`|Gruppo «WhatsApp»: numero e due messaggi|Il §7.1 vuole il numero modificabile dall'editor|fatto|
 |`locales/it.default.schema.json`|4 nomi di sezione accorciati sotto i 25 caratteri|Le traduzioni ufficiali Shopify sforavano il limite e producevano errori Theme Check|fatto|
 |`templates/*.json`, `sections/header-group.json`|9 stringhe di vetrina tradotte|Restavano in inglese fuori da `locales`|fatto|
+|`templates/index.json`|Home rifatta: banner, collezioni, tre rassicurazioni, prodotti, negozio|Le due sezioni dimostrative di Dawn erano la causa del «sembra ancora vuoto»|fatto|
+|`snippets/meta-tags.liquid`|`og:price:amount` con il punto decimale, aggiunto `og:availability`|Con la valuta italiana usciva «29,90» con la virgola, che gli scraper Open Graph leggono male o scartano|fatto|
+|`layout/theme.liquid`|Aggiunto il render di `negozio-fisico`|Punto di innesto per verifica dominio Meta e SEO locale|fatto|
+|`config/settings_schema.json`|Gruppo «Meta e negozio»|Verifica dominio in perimetro (§2), più i dati del punto vendita|fatto|
 |`.github/`|Rimossa l'automazione del repository pubblico Shopify|`cla.yml` e `stale.yml` agirebbero contro di noi|fatto|
 
 ### Localizzazione
@@ -415,11 +422,28 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 * \[ ] Autenticare Shopify CLI: `shopify auth login` **non funziona da qui**, richiede un terminale interattivo
 * \[~] Numero WhatsApp — impostato `393513521255` **solo per le prove**. Il definitivo va messo dall'editor, non nel file
 
+### SEO e catalogo Meta — cosa NON va rifatto
+
+Accertato leggendo il codice: Dawn 16 copre già quasi tutta la SEO che si fa nel tema. **Non toccare** e non riscrivere:
+
+* Dati strutturati `Product`/`ProductGroup` — `sections/main-product.liquid` emette già `{{ product | structured_data }}` con marca, prezzo e disponibilità. Un secondo blocco JSON-LD sulla stessa pagina si contende con questo e Google segnala duplicati
+* `Organization` e `WebSite` — già in `sections/header.liquid`. Per questo lo `Store` che abbiamo aggiunto ha un `@id` distinto
+* `sitemap.xml`, `robots.txt`, canonical di varianti e pagine paginate — li genera Shopify. **Non creare** `templates/robots.txt.liquid`
+* `hreflang` — lo emette Shopify da sé, ma **solo** con più di una lingua pubblicata. Con l'italiano soltanto non serve
+* Link alle policy nel footer — `sections/footer.liquid` cicla `shop.policies`. Aggiungerle al menu del footer le duplica
+
+**Il catalogo Meta non legge l'HTML del tema**: legge il feed del canale di vendita «Facebook e Instagram», che sincronizza da solo a ogni modifica del prodotto. Quello che conta sono quindi i **campi compilati in admin**, non il Liquid. Il tema serve solo per la verifica del dominio.
+
+**Sequenza obbligata per Meta**, da non saltare: dominio acquistato dal cliente → store di produzione e trasferimento → dominio impostato come primario → password della vetrina rimossa → *solo allora* il canale Meta. Un development store con la password attiva fa rifiutare tutti gli articoli del catalogo, perché il crawler non riesce ad aprire gli URL.
+
 ### Emerso durante lo sviluppo, fuori perimetro
 
 Annotare qui ciò che si scopre e che non va implementato ora, così è pronto per la valutazione delle Fasi 4 e 5.
 
-* *(nessuna voce)*
+* **Pixel Meta e Conversions API** — il wizard del canale «Facebook e Instagram» propone di creare il pixel *dentro lo stesso flusso di installazione*. Accettare significa installare uno script di tracciamento mentre il banner cookie è per contratto inerte, cioè senza raccolta del consenso: in Europa è anche un problema di conformità, non solo di perimetro. **Il pixel non serve** né per creare il catalogo né per i tag prodotto su Instagram, che sono le due cose in perimetro: serve per il retargeting dinamico, che è Fase 4. **Durante l'installazione, saltare quel passaggio.**
+* **Scheda Google Business Profile** — è ciò che decide davvero la ricerca locale. Lo `Store` JSON-LD che abbiamo messo la rinforza, non la sostituisce
+* **Newsletter ed email marketing** — la newsletter del footer va spenta: il canale di questo negozio è WhatsApp e le email raccolte non verrebbero mai usate. Raccogliere indirizzi che nessuno userà è lavoro sprecato e un obbligo GDPR in più
+* **GTIN e MPN nei dati strutturati** — il filtro `structured_data` non li emette. Aggiungerli richiede riscrivere lo schema a mano e mantenerlo
 
 \---
 
@@ -443,3 +467,5 @@ Una riga per ogni intervento. Formato: data, area, cosa è cambiato, perché.
 
 
 |2026-09-09|scheda prodotto|Messaggio WhatsApp riscritto con i dettagli elencati opzione per opzione|Il messaggio serve alla commessa che prende in carico l'ordine: «Colore: Blu / Misura: King» si legge, «Blu / King» va interpretato|
+|2026-09-09|home, SEO|Home rifatta, gruppo «Meta e negozio», dati strutturati del punto vendita, Open Graph corretto|Il sito «sembrava vuoto» per le sezioni dimostrative di Dawn. Verifica dominio e SEO locale sono in perimetro (§2)|
+|2026-09-09|contenuti|Aggiunti `docs/prodotti-prova.csv` e `docs/contenuti-pagine.md`|Otto prodotti fittizi che coprono i casi di collaudo del §7.1, e i testi delle pagine pronti per l'admin|

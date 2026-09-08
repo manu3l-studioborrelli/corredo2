@@ -6,8 +6,15 @@
         "heading": {
           "type": "heading",
           "settings": {
-            "heading": "Scopri le ultime novità",
-            "heading_size": "h0"
+            "heading": "Corredo, biancheria e abbigliamento",
+            "heading_size": "h1"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Il nostro negozio, adesso anche online. Ordina come preferisci: dal sito o scrivendoci su WhatsApp.</p>",
+            "text_style": "body"
           }
         },
         "button": {
@@ -15,7 +22,7 @@
           "settings": {
             "button_label_1": "Vedi tutti i prodotti",
             "button_link_1": "shopify://collections/all",
-            "button_style_secondary_1": true,
+            "button_style_secondary_1": false,
             "button_label_2": "",
             "button_link_2": "",
             "button_style_secondary_2": false
@@ -24,52 +31,172 @@
       },
       "block_order": [
         "heading",
+        "text",
         "button"
       ],
       "settings": {
-        "image_overlay_opacity": 40,
-        "image_height": "large",
-        "desktop_content_position": "bottom-center",
-        "show_text_box": false,
+        "image_overlay_opacity": 30,
+        "image_height": "medium",
+        "desktop_content_position": "middle-center",
+        "show_text_box": true,
         "image_behavior": "none",
         "desktop_content_alignment": "center",
-        "color_scheme": "scheme-3",
+        "color_scheme": "scheme-1",
         "mobile_content_alignment": "center",
-        "stack_images_on_mobile": false,
-        "show_text_below": false
+        "stack_images_on_mobile": true,
+        "show_text_below": true
+      }
+    },
+    "collezioni": {
+      "type": "collection-list",
+      "blocks": {},
+      "block_order": [],
+      "settings": {
+        "title": "Cosa trovi da noi",
+        "heading_size": "h2",
+        "image_ratio": "square",
+        "columns_desktop": 3,
+        "color_scheme": "scheme-1",
+        "show_view_all": false,
+        "columns_mobile": "2",
+        "swipe_on_mobile": false,
+        "padding_top": 40,
+        "padding_bottom": 24
+      }
+    },
+    "rassicurazioni": {
+      "type": "multicolumn",
+      "blocks": {
+        "whatsapp": {
+          "type": "column",
+          "settings": {
+            "title": "Ordina su WhatsApp",
+            "text": "<p>Su ogni prodotto trovi il pulsante verde. Ti si apre la chat con il messaggio già scritto: tu lo invii e basta. Ti risponde una persona del negozio.</p>",
+            "link_label": "Come funziona",
+            "link": ""
+          }
+        },
+        "ritiro": {
+          "type": "column",
+          "settings": {
+            "title": "Ritiro in negozio",
+            "text": "<p>Puoi ordinare online e passare a ritirare quando ti è comodo, senza spese di spedizione.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        },
+        "spedizione": {
+          "type": "column",
+          "settings": {
+            "title": "Spedizione a casa",
+            "text": "<p>Se preferisci, ti mandiamo tutto a casa. I tempi e i costi sono indicati prima di confermare l'ordine.</p>",
+            "link_label": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "whatsapp",
+        "ritiro",
+        "spedizione"
+      ],
+      "settings": {
+        "title": "Due modi per ordinare",
+        "heading_size": "h2",
+        "image_width": "full",
+        "image_ratio": "adapt",
+        "button_label": "",
+        "button_link": "",
+        "columns_desktop": 3,
+        "column_alignment": "left",
+        "background_style": "primary",
+        "color_scheme": "scheme-1",
+        "columns_mobile": "1",
+        "swipe_on_mobile": false,
+        "padding_top": 40,
+        "padding_bottom": 40
       }
     },
     "featured_collection": {
       "type": "featured-collection",
       "settings": {
-        "title": "Prodotti in evidenza",
+        "title": "Novità in negozio",
         "heading_size": "h2",
         "description": "",
         "show_description": false,
         "description_style": "body",
         "collection": "all",
-        "products_to_show": 8,
-        "columns_desktop": 4,
+        "products_to_show": 6,
+        "columns_desktop": 3,
         "color_scheme": "scheme-1",
         "full_width": false,
         "show_view_all": true,
         "view_all_style": "solid",
         "enable_desktop_slider": false,
         "swipe_on_mobile": false,
-        "image_ratio": "adapt",
+        "image_ratio": "square",
         "image_shape": "default",
         "show_secondary_image": true,
         "show_vendor": false,
         "show_rating": false,
         "quick_add": "none",
         "columns_mobile": "2",
-        "padding_top": 44,
+        "padding_top": 40,
         "padding_bottom": 36
+      }
+    },
+    "il_negozio": {
+      "type": "image-with-text",
+      "blocks": {
+        "heading": {
+          "type": "heading",
+          "settings": {
+            "heading": "Ci trovi in negozio",
+            "heading_size": "h2"
+          }
+        },
+        "text": {
+          "type": "text",
+          "settings": {
+            "text": "<p>Siamo un negozio vero, con persone vere dietro il bancone. Se hai un dubbio su una misura o su un tessuto, scrivici: ti rispondiamo noi.</p>",
+            "text_style": "body"
+          }
+        },
+        "button": {
+          "type": "button",
+          "settings": {
+            "button_label": "Dove siamo e orari",
+            "button_link": "",
+            "button_style_secondary": false
+          }
+        }
+      },
+      "block_order": [
+        "heading",
+        "text",
+        "button"
+      ],
+      "settings": {
+        "height": "adapt",
+        "desktop_image_width": "medium",
+        "layout": "image_first",
+        "image_behavior": "none",
+        "content_layout": "no-overlap",
+        "desktop_content_position": "top",
+        "desktop_content_alignment": "left",
+        "mobile_content_alignment": "left",
+        "section_color_scheme": "scheme-1",
+        "color_scheme": "scheme-1",
+        "padding_top": 40,
+        "padding_bottom": 52
       }
     }
   },
   "order": [
     "image_banner",
-    "featured_collection"
+    "collezioni",
+    "rassicurazioni",
+    "featured_collection",
+    "il_negozio"
   ]
 }

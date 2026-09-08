@@ -27,8 +27,24 @@
 {%- endif -%}
 
 {%- if request.page_type == 'product' -%}
-  <meta property="og:price:amount" content="{{ product.price | money_without_currency | strip_html }}">
+  {%- comment -%}
+    Il prezzo va scritto con il PUNTO decimale: e' quello che si aspettano gli
+    scraper di Open Graph. Con la localizzazione italiana money_without_currency
+    rende "29,90" con la virgola, che viene letto male o scartato. I prezzi
+    Shopify sono in centesimi, quindi la divisione per 100.0 da' la forma giusta
+    senza dipendere dal formato di valuta del negozio.
+
+    Si usa la variante selezionata, non product.price, che e' il prezzo minimo
+    del prodotto e su un catalogo con misure diverse non e' quello mostrato.
+  {%- endcomment -%}
+  {%- assign og_variante = product.selected_or_first_available_variant -%}
+  <meta property="og:price:amount" content="{{ og_variante.price | divided_by: 100.0 }}">
   <meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+  {%- if og_variante.available -%}
+    <meta property="og:availability" content="instock">
+  {%- else -%}
+    <meta property="og:availability" content="outofstock">
+  {%- endif -%}
 {%- endif -%}
 
 {%- if settings.social_twitter_link != blank -%}

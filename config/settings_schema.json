@@ -1493,5 +1493,56 @@
         "info": "t:settings_schema.whatsapp.settings.whatsapp_messaggio_esaurito.info"
       }
     ]
+  },
+  {
+    "name": "t:settings_schema.negozio.name",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "t:settings_schema.negozio.settings.paragraph.content"
+      },
+      {
+        "type": "text",
+        "id": "meta_domain_verification",
+        "label": "t:settings_schema.negozio.settings.meta_domain_verification.label",
+        "info": "t:settings_schema.negozio.settings.meta_domain_verification.info"
+      },
+      {
+        "type": "header",
+        "content": "t:settings_schema.negozio.settings.header_negozio.content"
+      },
+      {
+        "type": "text",
+        "id": "negozio_via",
+        "label": "t:settings_schema.negozio.settings.negozio_via.label"
+      },
+      {
+        "type": "text",
+        "id": "negozio_cap",
+        "label": "t:settings_schema.negozio.settings.negozio_cap.label"
+      },
+      {
+        "type": "text",
+        "id": "negozio_citta",
+        "label": "t:settings_schema.negozio.settings.negozio_citta.label"
+      },
+      {
+        "type": "text",
+        "id": "negozio_provincia",
+        "label": "t:settings_schema.negozio.settings.negozio_provincia.label",
+        "info": "t:settings_schema.negozio.settings.negozio_provincia.info"
+      },
+      {
+        "type": "text",
+        "id": "negozio_telefono",
+        "label": "t:settings_schema.negozio.settings.negozio_telefono.label"
+      },
+      {
+        "type": "textarea",
+        "id": "negozio_orari",
+        "label": "t:settings_schema.negozio.settings.negozio_orari.label",
+        "info": "t:settings_schema.negozio.settings.negozio_orari.info"
+      }
+    ]
   }
 ]

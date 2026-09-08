@@ -392,7 +392,43 @@
           "info": "Used when the selected variant cannot be purchased. Same placeholders. Leave empty to use the default text."
         }
       }
-    }  },
+    },
+    "negozio": {
+      "name": "Meta and store",
+      "settings": {
+        "paragraph": {
+          "content": "Domain verification for Instagram product tags, and physical store details for local search."
+        },
+        "meta_domain_verification": {
+          "label": "Meta domain verification code",
+          "info": "From Business Suite: Settings, Brand safety, Domains, Add, Meta tag. Paste only the content value here, not the whole tag."
+        },
+        "header_negozio": {
+          "content": "Physical store"
+        },
+        "negozio_via": {
+          "label": "Street and number"
+        },
+        "negozio_cap": {
+          "label": "Postal code"
+        },
+        "negozio_citta": {
+          "label": "City"
+        },
+        "negozio_provincia": {
+          "label": "Province",
+          "info": "Two-letter code."
+        },
+        "negozio_telefono": {
+          "label": "Store phone number"
+        },
+        "negozio_orari": {
+          "label": "Opening hours",
+          "info": "One line per range, formatted Mo-Sa 09:00-13:00. For search engines, not shown to customers."
+        }
+      }
+    }
+  },
   "sections": {
     "all": {
       "animation": {

@@ -1,0 +1,70 @@
+{% doc %}
+  Emette nell'head due cose legate al negozio fisico, entrambe facoltative:
+
+  1. il meta tag di verifica del dominio Meta, necessario per abilitare i tag
+     prodotto su Instagram nello Spazio economico europeo (§2);
+  2. i dati strutturati LocalBusiness, che dicono ai motori di ricerca dove
+     si trova il punto vendita.
+
+  Il LocalBusiness ha un @id proprio e distinto da quello dell'Organization che
+  Dawn emette gia' in sections/header.liquid: due schemi con lo stesso @id si
+  sovrascriverebbero.
+
+  Niente valori predefiniti: a campi vuoti non viene emesso nulla, invece di
+  pubblicare un indirizzo inventato. E' la stessa regola del gruppo WhatsApp.
+
+  @example
+  {% render 'negozio-fisico' %}
+{% enddoc %}
+
+{%- if settings.meta_domain_verification != blank -%}
+  <meta name="facebook-domain-verification" content="{{ settings.meta_domain_verification | escape }}">
+{%- endif -%}
+
+{%- liquid
+  assign via = settings.negozio_via | strip
+  assign citta = settings.negozio_citta | strip
+-%}
+
+{%- if via != blank and citta != blank -%}
+  {%- capture dati_negozio -%}
+    {
+      "@context": "https://schema.org",
+      "@type": "Store",
+      "@id": {{ request.origin | append: '/#negozio' | json }},
+      "name": {{ shop.name | json }},
+      "url": {{ request.origin | json }},
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": {{ via | json }},
+        "addressLocality": {{ citta | json }},
+        "addressCountry": "IT"
+        {%- if settings.negozio_cap != blank -%}
+          , "postalCode": {{ settings.negozio_cap | strip | json }}
+        {%- endif -%}
+        {%- if settings.negozio_provincia != blank -%}
+          , "addressRegion": {{ settings.negozio_provincia | strip | upcase | json }}
+        {%- endif -%}
+      }
+      {%- if settings.negozio_telefono != blank -%}
+        , "telephone": {{ settings.negozio_telefono | strip | json }}
+      {%- endif -%}
+      {%- if settings.negozio_orari != blank -%}
+        , "openingHours": [
+          {%- assign fasce = settings.negozio_orari | strip | newline_to_br | split: '<br />' -%}
+          {%- for fascia in fasce -%}
+            {%- assign pulita = fascia | strip_newlines | strip -%}
+            {%- if pulita != blank -%}
+              {%- unless forloop.first -%},{%- endunless -%}
+              {{ pulita | json }}
+            {%- endif -%}
+          {%- endfor -%}
+        ]
+      {%- endif -%}
+    }
+  {%- endcapture -%}
+
+  <script type="application/ld+json">
+    {{ dati_negozio }}
+  </script>
+{%- endif -%}
