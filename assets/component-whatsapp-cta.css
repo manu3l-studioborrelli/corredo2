@@ -55,6 +55,25 @@
   font-size: 1.6rem;
 }
 
+/**
+ * Stato di attesa: dal tocco su un'opzione fino alla risposta del server,
+ * l'href in pagina si riferisce alla variante precedente. Il pulsante resta
+ * visibile ma inerte.
+ *
+ * Su una combinazione che non esiste come variante, Dawn non pubblica mai
+ * variantChange e questo stato non viene sciolto: e' voluto. Il pulsante
+ * resta spento come "Aggiungi al carrello", che li' sopra dice "Non
+ * disponibile", invece di mandare in chat un ordine sbagliato.
+ */
+.whatsapp-cta[data-in-attesa] {
+  opacity: 0.45;
+}
+
+.whatsapp-cta[data-in-attesa] .whatsapp-cta__button {
+  pointer-events: none;
+  cursor: default;
+}
+
 .whatsapp-cta__icon {
   display: flex;
   flex: 0 0 auto;

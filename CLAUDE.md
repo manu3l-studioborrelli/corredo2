@@ -244,6 +244,18 @@ Il messaggio precompilato deve contenere:
 * Con JavaScript disattivato, il link punta comunque a un messaggio valido costruito su `product.selected\\\_or\\\_first\\\_available\\\_variant`
 * Il testo del messaggio va codificato per URL, comprese le lettere accentate
 
+**Tre stati del pulsante, non due**
+
+Vanno distinti, perché Dawn li tratta in modo diverso:
+
+|Stato|Cosa vede il cliente|Come è ottenuto|
+|-|-|-|
+|Variante acquistabile|«Ordina su WhatsApp», messaggio d'ordine|Reso da Liquid|
+|Variante esistente ma esaurita|«Chiedi su WhatsApp», messaggio «quando torna disponibile»|Reso da Liquid: la variante non è nulla, Dawn pubblica `variantChange` normalmente|
+|Combinazione che **non esiste** come variante|Pulsante visibile ma inerte e attenuato|Lo script lo spegne al tocco sull'opzione e nessun evento lo riaccende|
+
+Il terzo caso è il più insidioso. Se il cliente sceglie Rosso e poi XL su un prodotto che non abbina quei due valori, Dawn imbocca il ramo `if (!variant)` di `product-info.js` ed esce con un `return` **prima** di pubblicare `variantChange`. Disabilita «Aggiungi al carrello» con «Non disponibile», ma non tocca nulla di custom. Senza contromisura il pulsante WhatsApp resterebbe attivo con il link della variante precedente, e in chat arriverebbe l'ordine di un articolo diverso da quello a schermo: esattamente il guasto della nota qui sotto. Per questo lo script si aggancia anche a `optionValueSelectionChange`, che Dawn pubblica **prima** della richiesta al server, e spegne il pulsante in attesa di conferma. Chi tocca `assets/whatsapp-cta.js` non rimuova quell'aggancio.
+
 **Criteri di accettazione**
 
 * \[ ] Cambiando variante venti volte di seguito, il messaggio riflette sempre la variante mostrata a schermo
@@ -343,6 +355,7 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 |2026-09-08|Nessun valore predefinito nelle impostazioni WhatsApp|A campo vuoto lo snippet ripiega sulle stringhe di `locales`, così nessun testo italiano finisce scritto in chiaro fuori dai file di localizzazione (§3)|
 |2026-09-08|Verde `#107C6E` invece del verde del marchio `#25D366`|Il verde WhatsApp su bianco dà circa 2,1:1 e non passa il WCAG AA imposto dal §3. Questo dà 5,1:1 restando riconoscibile|
 |2026-09-08|Rimossa la cartella `.github` di Dawn|È l'automazione del repository pubblico Shopify: `cla.yml` chiederebbe di firmare il CLA a ogni PR e `stale.yml` chiuderebbe le nostre issue. Sostituita con il solo Theme Check|
+|2026-09-08|Il pulsante WhatsApp si spegne al tocco sull'opzione e si riaccende solo con la risposta del server|Dawn non pubblica `variantChange` quando la combinazione scelta non esiste come variante: esce prima con un `return`. Spegnere in anticipo è l'unico modo per non lasciare in pagina un link che ordina l'articolo sbagliato. Lo stato si scioglie da sé quando la variante esiste, perché il markup ri-renderizzato arriva pulito. Se la richiesta al server fallisce il pulsante resta spento, che è il modo giusto di rompersi|
 |2026-09-08|Disattivato il checkout accelerato (`show_dynamic_checkout: false`) sulla scheda prodotto|Con l'impostazione attiva Dawn assegna ad «Aggiungi al carrello» la classe `button--secondary`, che si riempie con il **colore di sfondo** dello schema: diventa un pulsante in outline mentre quello WhatsApp resta pieno. Il percorso WhatsApp dominava visivamente, che è esattamente il «subordinato all'altro» vietato dal §3. Spento anche perché al pubblico del §1 un terzo pulsante di pagamento accelerato aggiunge confusione. **Da confermare**: è un click nell'editor per riattivarlo, ma allora va rivisto anche il foglio di stile|
 
 \---
@@ -360,7 +373,7 @@ Registro delle scelte non ovvie, con la motivazione. Serve a non ridiscutere a d
 ### Da decidere internamente
 
 * \[~] Peso visivo relativo dei due pulsanti — stessa larghezza, stessa altezza (48 px), stesso corpo (16 px), entrambi **pieni**, colore diverso. La parità si regge anche sul checkout accelerato spento: se lo si riattiva, «Aggiungi al carrello» torna in outline e la parità salta. Da provare sul prototipo
-* \[~] Comportamento della CTA WhatsApp su variante esaurita — realizzato: il pulsante **resta attivo** e il messaggio cambia in «quando torna disponibile». Su cinque ordini al giorno con negozio fisico quella richiesta vale; è configurabile. **Da confermare**
+* \[~] Comportamento della CTA WhatsApp su variante esaurita — realizzato, distinguendo i tre stati descritti nel §7.1. Su variante **esistente ma esaurita** il pulsante resta attivo e il messaggio diventa «quando torna disponibile»: su cinque ordini al giorno con negozio fisico quella richiesta vale. Su **combinazione inesistente** il pulsante si spegne. **Da confermare il primo caso**, il secondo non è opinabile
 * \[~] Testo predefinito del messaggio WhatsApp — realizzato un default in `locales`, sovrascrivibile dall'editor. **Da confermare**
 * \[ ] Corpo del testo di Dawn: `body` è a **15 px**, il §3 ne chiede 16 come minimo. Sui due pulsanti della scheda prodotto è già corretto, ma la scelta va presa per tutto il tema, insieme a palette e caratteri della Fase 1. Si può agire sull'impostazione «scala del corpo del testo» invece che sui CSS
 * \[ ] Riabilitare `MatchingTranslations` in `.theme-check.yml`: Dawn la disattiva perché spedisce 25 lingue che restano indietro, ma a noi servono due lingue sole e la regola intercetterebbe le chiavi mancanti
@@ -393,6 +406,7 @@ Una riga per ogni intervento. Formato: data, area, cosa è cambiato, perché.
 |2026-09-08|scheda prodotto|Realizzata la doppia CTA «Ordina su WhatsApp» (§7.1)|Funzione centrale del progetto|
 |2026-09-08|contenuti|Tradotte 9 stringhe di vetrina rimaste in inglese|Fuori da `locales`, il cliente le vedeva in inglese|
 |2026-09-08|scheda prodotto|Correzioni da audit: nota portata a 16 px, checkout accelerato spento, altre 2 stringhe tradotte|Un esame indipendente ha trovato una violazione del corpo minimo, la parità dei pulsanti che non si realizzava e due stringhe inglesi che il primo controllo aveva perso|
+|2026-09-08|scheda prodotto|Il pulsante WhatsApp si spegne su combinazione di opzioni inesistente|Dawn esce prima di pubblicare `variantChange`: il pulsante restava attivo con il link della variante precedente e avrebbe mandato in chat ordini sbagliati. È il guasto previsto dalla nota del §7.1, trovato da due lenti indipendenti e confermato da due scettici|
 
 
 
