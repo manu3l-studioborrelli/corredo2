@@ -33,13 +33,13 @@
     close();
     lastFocus = document.activeElement;
     d.classList.add('is-open'); overlay.classList.add('is-open'); d.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden'; openDrawer = d;
-    var f = $('button, a, input', d); if (f) setTimeout(function () { f.focus(); }, 60);
+    document.documentElement.classList.add('is-locked'); document.body.style.overflow = 'hidden'; openDrawer = d;
+    var f = $('button, a, input', d); if (f) setTimeout(function () { f.focus({ preventScroll: true }); }, 340);
   }
   function close() {
     if (!openDrawer) return;
     openDrawer.classList.remove('is-open'); openDrawer.setAttribute('aria-hidden', 'true');
-    overlay.classList.remove('is-open'); document.body.style.overflow = '';
+    overlay.classList.remove('is-open'); document.body.style.overflow = ''; document.documentElement.classList.remove('is-locked');
     openDrawer = null; if (lastFocus) lastFocus.focus();
   }
   $$('[data-open]').forEach(function (b) { b.addEventListener('click', function () { open(b.getAttribute('data-open')); }); });

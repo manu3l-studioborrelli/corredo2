@@ -119,7 +119,7 @@ h1, h2, h3, h4 { line-height: 1.15; letter-spacing: -.01em; }
 .nav { display: none; }
 
 /* ===== drawer ===== */
-.overlay { position: fixed; inset: 0; background: rgba(20,18,15,.5); opacity: 0; visibility: hidden; transition: .3s; z-index: 150; backdrop-filter: blur(2px); }
+.overlay { position: fixed; inset: 0; background: rgba(20,18,15,.5); opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; z-index: 150; }
 .overlay.is-open { opacity: 1; visibility: visible; }
 .drawer { position: fixed; top: 0; bottom: 0; left: 0; width: min(92vw, 400px); background: var(--white); z-index: 160; transform: translateX(-102%); transition: transform .35s cubic-bezier(.2,.8,.2,1); display: flex; flex-direction: column; }
 .drawer.is-open { transform: none; }
@@ -694,3 +694,11 @@ html, body { overflow-x: clip; }
 .footer__grid > * { min-width: 0; }
 @media (min-width: 640px) { .footer__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 900px) { .newsletter__in { grid-template-columns: 1fr 1fr; } }
+
+
+/* smooth drawers: cheap overlay, GPU-promoted panel, no reflow on scroll lock, pause background animation */
+html { scrollbar-gutter: stable; }
+.drawer { will-change: transform; backface-visibility: hidden; contain: layout paint style; transition: transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s linear .3s; visibility: hidden; }
+.drawer.is-open { visibility: visible; transition: transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s; }
+html.is-locked .marquee__track, html.is-locked .hero__bar i, html.is-locked .pin .i { animation-play-state: paused; }
+html.is-locked .hero__bar i.run { animation-play-state: paused; }
