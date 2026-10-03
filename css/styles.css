@@ -702,3 +702,8 @@ html { scrollbar-gutter: stable; }
 .drawer.is-open { visibility: visible; transition: transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s; }
 html.is-locked .marquee__track, html.is-locked .hero__bar i, html.is-locked .pin .i { animation-play-state: paused; }
 html.is-locked .hero__bar i.run { animation-play-state: paused; }
+
+/* ---------- catalogue additions (real products) ---------- */
+.price__from { font-size: 13px; font-weight: 600; color: var(--muted); }
+.price__unit { font-size: 13px; color: var(--muted); font-weight: 500; }
+.swatches i.multi { background: conic-gradient(#e45a5a, #f2c94c, #5fb37a, #4f8ad9, #a366d6, #e45a5a); }
