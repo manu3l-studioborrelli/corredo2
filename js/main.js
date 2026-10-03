@@ -152,7 +152,9 @@
 
   /* ---------- cart ---------- */
   var FREE = 49, cart = [], cartCount = $('[data-cart-count]'), list = $('[data-cart-list]'), sub = $('[data-cart-sub]'), ship = $('[data-cart-ship]'), shipBar = $('[data-cart-bar]');
+  try { cart = JSON.parse(sessionStorage.getItem('ic-cart') || '[]'); } catch (e) { cart = []; }
   function render() {
+    try { sessionStorage.setItem('ic-cart', JSON.stringify(cart)); } catch (e) { /* private mode */ }
     var n = 0, total = 0;
     cart.forEach(function (it) { n += it.q; total += it.q * it.p; });
     setBadge(cartCount, n); sub.textContent = fmt(total);
@@ -165,7 +167,7 @@
     list.innerHTML = cart.map(function (it, k) {
       return '<div class="cart-item"><div class="art"><img src="' + it.img + '" alt=""></div>' +
         '<div><h4>' + it.t + '</h4><div class="qty"><button data-q="-1" data-k="' + k + '" aria-label="Diminuisci"><svg class="i"><use href="#u-minus"/></svg></button><output>' + it.q + '</output><button data-q="1" data-k="' + k + '" aria-label="Aumenta"><svg class="i"><use href="#u-plus"/></svg></button></div></div>' +
-        '<div style="text-align:right"><strong>' + fmt(it.p * it.q) + '</strong><br><button class="rm" data-rm="' + k + '">Rimuovi</button></div></div>';
+        '<div style="text-align:right"><strong>' + (it.p === 0 ? 'Omaggio' : fmt(it.p * it.q)) + '</strong><br><button class="rm" data-rm="' + k + '">Rimuovi</button></div></div>';
     }).join('');
   }
   function add(d, qty, openCart) {
@@ -186,6 +188,8 @@
     var r = e.target.closest('[data-rm]'); if (r) { cart.splice(+r.getAttribute('data-rm'), 1); render(); }
   });
   render();
+  /* small API for page scripts (category / product pages) */
+  window.IC = { add: add, toast: toast, open: open, fmt: fmt };
 
   /* ---------- product showcase ---------- */
   (function () {

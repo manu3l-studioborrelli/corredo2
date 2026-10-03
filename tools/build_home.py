@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Rebuild index.html (homepage preview) from data/catalog.csv + tools/template.html.
 
-    python tools/build_home.py
+    python tools/build.py        # homepage + category pages + product page
 
 Also writes data/catalog.json (clean product list, ready for the product/category pages).
 """
@@ -55,7 +55,22 @@ def load():
     return rows
 
 
+# P216 has no price in the sheet: demo value so the product page can be shown. Confirm with the client.
+DEMO_OVERRIDES = {'P216': dict(price=9.99, priceType='esatto', priceIsDemo=True)}
+
+
+def cat_url(c, sub=None):
+    return 'categoria-%s.html%s' % (slug(c), '?sub=%s' % slug(sub) if sub else '')
+
+
+def product_url(p):
+    # only P216 has a product page for now
+    return 'prodotto.html' if p['id'] == 'P216' else '#'
+
+
 PRODUCTS = load()
+for _p in PRODUCTS:
+    _p.update(DEMO_OVERRIDES.get(_p['id'], {}))
 BY_ID = {p['id']: p for p in PRODUCTS}
 CATS = collections.OrderedDict()
 for p in PRODUCTS:
@@ -156,6 +171,17 @@ for p in PRODUCTS:
     pool = IMG[pool_for(p)]
     p['image'] = [pool[(h(p) + i) % len(pool)] for i in range(min(3, len(pool)))]
 
+# P216 (product page): photos per colour, in gallery order black, black, white, white, blue
+P216_IMAGES = ['1562135291-7728cc647783', '1610502778270-c5c6f4c7d575', '1620799139507-2a76f79a2f4d',
+               '1620799139652-715e4d5b232d', '1666358070734-b9d6590278c9']
+BY_ID['P216']['image'] = P216_IMAGES
+
+
+for p in PRODUCTS:  # availability is NOT in the sheet: deterministic demo values (~8% out of stock, ~12% low)
+    r = h(p) % 100
+    p['stock'] = 'in' if p['id'] == 'P216' else ('out' if r < 8 else 'low' if r < 20 else 'in')
+    p['stockIsDemo'] = True
+
 
 def pal(p):
     return PALETTES[h(p) % len(PALETTES)]
@@ -232,29 +258,29 @@ def pcard(p):
     bg, fg = pal(p)
     return '''<article class="pcard" data-product>
   <div class="pcard__media">
-    <a href="#" aria-label="%(t)s">%(art)s</a>
+    <a href="%(url)s" aria-label="%(t)s">%(art)s</a>
     %(badge)s
     <button class="wish" aria-label="Aggiungi ai preferiti" aria-pressed="false">%(heart)s</button>
   </div>
   <div class="pcard__body">
     <span class="pcard__vendor">%(v)s</span>
-    <h3 class="pcard__title"><a href="#">%(t)s</a></h3>
+    <h3 class="pcard__title"><a href="%(url)s">%(t)s</a></h3>
     %(sw)s
     %(price)s
     %(btn)s
   </div>
-</article>''' % dict(t=esc(p['title']), art=art(p['image'][0], bg, fg), badge=badge(p), heart=U('heart'), v=vendor(p),
+</article>''' % dict(url=product_url(p), t=esc(p['title']), art=art(p['image'][0], bg, fg), badge=badge(p), heart=U('heart'), v=vendor(p),
                      sw=swatches(p), price=price_html(p), btn=add_btn(p))
 
 
 def hitem(p):
     bg, fg = pal(p)
     return '''<div class="hitem" data-product>
-  <a href="#">%s</a>
+  <a href="%s">%s</a>
   <div class="hitem__t"><small>%s</small><strong>%s</strong>
     %s</div>
   <button class="add-mini" aria-label="Aggiungi %s al carrello" data-add data-id="%s" data-title="%s" data-price="%s" data-img="%s">%s</button>
-</div>''' % (art(p['image'][0], bg, fg), vendor(p), esc(p['title']), price_html(p), esc(p['title']), p['id'], esc(p['title']),
+</div>''' % (product_url(p), art(p['image'][0], bg, fg), vendor(p), esc(p['title']), price_html(p), esc(p['title']), p['id'], esc(p['title']),
              p['price'], u(p['image'][0], 200), U('plus'))
 
 
@@ -300,25 +326,25 @@ def subs(c, n=None):
 def nav_items():
     cols = ''
     for title, icon, cats in GROUPS:
-        lis = ''.join('<li><a href="#">%s</a></li>' % esc(c) for c in cats)
-        cols += '<div><h4>%s<a href="#">%s</a></h4><ul>%s</ul></div>' % (ICO(icon), title, lis)
-    mega = ('<div class="mega">\n            %s\n            <a class="mega__promo" href="#">%s<strong>Aspettando l&rsquo;inverno</strong>'
+        lis = ''.join('<li><a href="%s">%s</a></li>' % (cat_url(c), esc(c)) for c in cats)
+        cols += '<div><h4>%s<span>%s</span></h4><ul>%s</ul></div>' % (ICO(icon), title, lis)
+    mega = ('<div class="mega">\n            %s\n            <a class="mega__promo" href="%s">%s<strong>Aspettando l&rsquo;inverno</strong>'
             '<span>Coperte, trapunte e plaid da %s</span><span class="link-u">Scopri la collezione</span></a>\n          </div>'
-            % (cols, ICO('bed'), eur_s(cat_min('Biancheria letto', 'Plaid'))))
-    items = ['<li class="nav__item"><a class="nav__link" href="#">Offerte<span class="nav-badge">Deal</span></a></li>',
-             '<li class="nav__item nav__item--static" data-mega>\n          <a class="nav__link" href="#" aria-haspopup="true" aria-expanded="false">'
+            % (cols, cat_url('Biancheria letto', 'Plaid'), ICO('bed'), eur_s(cat_min('Biancheria letto', 'Plaid'))))
+    items = ['<li class="nav__item"><a class="nav__link" href="categoria-offerte.html">Offerte<span class="nav-badge">Deal</span></a></li>',
+             '<li class="nav__item nav__item--static" data-mega>\n          <a class="nav__link" href="categoria-tutti.html" aria-haspopup="true" aria-expanded="false">'
              'Tutte le categorie%s</a>\n          %s\n        </li>' % (U('down'), mega)]
     for c in ['Intimo donna', 'Abbigliamento donna', 'Pigiami e notte', 'Biancheria letto', 'Bagno', 'Casa e arredo']:
-        items.append('<li class="nav__item"><a class="nav__link" href="#">%s</a></li>' % esc(c))
+        items.append('<li class="nav__item"><a class="nav__link" href="%s">%s</a></li>' % (cat_url(c), esc(c)))
     return '        ' + '\n        '.join(items)
 
 
 def drawer_links():
-    out = ['    <a class="dlink" href="#">Offerte<span class="tag">Deal</span></a>']
+    out = ['    <a class="dlink" href="categoria-offerte.html">Offerte<span class="tag">Deal</span></a>']
     for k, c in enumerate(CAROUSEL_ORDER):
-        links = ''.join('<a href="#">%s</a>' % esc(s) for s in subs(c))
+        links = ''.join('<a href="%s">%s</a>' % (cat_url(c, s), esc(s)) for s in subs(c))
         out.append('<button class="dlink" data-acc="d%d" aria-expanded="false">%s%s</button><div class="dsub" id="d%d">'
-                   '<a class="dsub__all" href="#">Vedi tutto in %s</a>%s</div>' % (k, esc(c), U('down'), k, esc(c), links))
+                   '<a class="dsub__all" href="%s">Vedi tutto in %s</a>%s</div>' % (k, esc(c), U('down'), k, cat_url(c), esc(c), links))
     out += ['    <a class="dlink" href="#">Il nostro negozio</a>', '    <a class="dlink" href="#">Idee e consigli</a>']
     return '\n'.join(out)
 
@@ -343,16 +369,17 @@ def hero_slides():
          'Scopri la casa', IMG['tappeti'][1], False),
     ]
     out = []
-    for theme, eyebrow, h2, txt, cta, img, first in slides:
+    urls = [cat_url('Biancheria letto'), cat_url('Pigiami e notte'), cat_url('Intimo donna'), cat_url('Bagno')]
+    for (theme, eyebrow, h2, txt, cta, img, first), url in zip(slides, urls):
         out.append('''    <article class="slide slide--%s" aria-roledescription="slide">
   <div class="slide__text">
     <span class="slide__eyebrow">%s</span>
     <h2>%s</h2>
     <p>%s</p>
-    <a class="btn" href="#">%s%s</a>
+    <a class="btn" href="%s">%s%s</a>
   </div>
   <div class="slide__art"><img src="%s" alt="" %s decoding="async"></div>
-</article>''' % (theme, eyebrow, h2, txt, cta, ARROW, u(img, 1200), 'fetchpriority="high"' if first else 'loading="lazy"'))
+</article>''' % (theme, eyebrow, h2, txt, url, cta, ARROW, u(img, 1200), 'fetchpriority="high"' if first else 'loading="lazy"'))
     return '  <div class="hero__track">\n' + '\n'.join(out) + '\n  </div>'
 
 
@@ -360,9 +387,9 @@ def categories():
     cards = ''
     for c in CAROUSEL_ORDER:
         bg, fg = cpal(c)
-        cards += '<a class="catcard" href="#">%s<h3>%s</h3><span>%d prodotti</span></a>' % (art(CAT_IMG[c], bg, fg), esc(c), cat_count(c))
+        cards += '<a class="catcard" href="%s">%s<h3>%s</h3><span>%d prodotti</span></a>' % (cat_url(c), art(CAT_IMG[c], bg, fg), esc(c), cat_count(c))
     return '''<section class="section container reveal" aria-labelledby="h-cat">
-  <div class="sec-head"><h2 id="h-cat">Acquista per categoria</h2><a class="link-u" href="#">Tutte le categorie</a></div>
+  <div class="sec-head"><h2 id="h-cat">Acquista per categoria</h2><a class="link-u" href="categoria-tutti.html">Tutte le categorie</a></div>
   %s
 </section>''' % carousel(cards, 'Categorie')
 
@@ -416,7 +443,7 @@ def infocards():
              ('246', '3 teli mare a 10 €', 'Teli 100% cotone con borsetta', IMG['telo'][0]),
              ('013', '3 tappeti a 9,99 €', 'Tappeto sardo 50×80 cm', IMG['tappeti'][1]),
              ('208', '2 lampade a 5 €', 'Lampada da tavolo LED ricaricabile', IMG['casa'][0]),
-             ('216', 'La terza è in omaggio', 'Maglie Navigare girocollo', IMG['abbU'][0]),
+             ('216', 'La terza è in omaggio', 'Maglie Navigare girocollo', P216_IMAGES[0]),
              ('279', '3 borse mare a 9,99 €', 'Fantasie digitali', IMG['borsa'][0])]
     cards = ''
     for pid, t, s, img in items:
@@ -477,9 +504,10 @@ def showcase():
 
 
 def promo_occ():
-    occ = [('moon', 'Per la notte'), ('bed', 'Per il letto'), ('sofa', 'Per la casa'), ('towel', 'Per il bagno'),
-           ('sock', 'Per i piedi'), ('shirt', 'Ogni giorno'), ('star', 'Per il mare'), ('heart', 'Per i piccoli')]
-    grid = ''.join('<a class="occ" href="#"><svg class="i" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-%s"/></svg>%s</a>' % (i, t) for i, t in occ)
+    occ = [('moon', 'Per la notte', 'Pigiami e notte'), ('bed', 'Per il letto', 'Biancheria letto'), ('sofa', 'Per la casa', 'Casa e arredo'),
+           ('towel', 'Per il bagno', 'Bagno'), ('sock', 'Per i piedi', 'Calze e calzini'), ('shirt', 'Ogni giorno', 'Abbigliamento donna'),
+           ('star', 'Per il mare', 'Mare e costumi'), ('heart', 'Per i piccoli', 'Neonato')]
+    grid = ''.join('<a class="occ" href="%s"><svg class="i" viewBox="0 0 64 64" aria-hidden="true"><use href="#i-%s"/></svg>%s</a>' % (cat_url(c), i, t) for i, t, c in occ)
     return '''<section class="container reveal" aria-label="Promozioni">
   <div class="pgrid">
     <div class="banner banner--sage" style="grid-template-columns:1fr">
@@ -508,7 +536,7 @@ def round_():
     for k, (c, s) in enumerate(items):
         rep = next(p for p in PRODUCTS if p['category'] == c and p['subcategory'] == s)
         bg, fg = PALETTES[k % len(PALETTES)]
-        cards += '<a class="round" href="#">%s<h3>%s</h3></a>' % (art(rep['image'][0], bg, fg), esc(s))
+        cards += '<a class="round" href="%s">%s<h3>%s</h3></a>' % (cat_url(c, s), art(rep['image'][0], bg, fg), esc(s))
     return '''<section class="section container reveal" aria-labelledby="h-round">
   <div class="sec-head"><h2 id="h-round">Cerca per tipo di prodotto</h2></div>
   %s
@@ -555,8 +583,8 @@ def depts():
     out = ''
     for c in ['Biancheria letto', 'Abbigliamento donna', 'Intimo donna', 'Pigiami e notte', 'Bagno', 'Casa e arredo']:
         bg, fg = cpal(c)
-        lis = ''.join('<li><a href="#">%s</a></li>' % esc(s) for s in subs(c, 6))
-        out += '<div class="dept"><div class="dept__head">%s<h3>%s</h3></div><ul>%s</ul><a class="link-u" href="#">Vedi tutto</a></div>' % (art(CAT_IMG[c], bg, fg), esc(c), lis)
+        lis = ''.join('<li><a href="%s">%s</a></li>' % (cat_url(c, s), esc(s)) for s in subs(c, 6))
+        out += '<div class="dept"><div class="dept__head">%s<h3>%s</h3></div><ul>%s</ul><a class="link-u" href="%s">Vedi tutto</a></div>' % (art(CAT_IMG[c], bg, fg), esc(c), lis, cat_url(c))
     return '''<section class="section container reveal" aria-labelledby="h-dept">
   <div class="sec-head"><div><h2 id="h-dept">Tutto il necessario, in un solo negozio</h2><p>Dal guardaroba alla camera da letto, dal bagno alla spiaggia.</p></div></div>
   <div class="depts">%s</div>
@@ -596,8 +624,12 @@ def brands():
 </section>''' % (len(cnt), carousel(cards, 'Marche'))
 
 
+def payments():
+    return (ROOT / 'tools/payments.html').read_text(encoding='utf-8')
+
+
 def footer_cats():
-    return ''.join('<li><a href="#">%s</a></li>' % esc(c) for c in
+    return ''.join('<li><a href="%s">%s</a></li>' % (cat_url(c), esc(c)) for c in
                    ['Intimo donna', 'Abbigliamento donna', 'Pigiami e notte', 'Biancheria letto', 'Bagno', 'Casa e arredo', 'Mare e costumi'])
 
 
@@ -606,7 +638,7 @@ def build():
     parts = dict(NAV_ITEMS=nav_items(), DRAWER_LINKS=drawer_links(), SEARCH_OPTIONS=search_options(), HERO_SLIDES=hero_slides(),
                  CATEGORIES=categories(), DEALS=deals(), BANNER_WINTER=banner_winter(), INFOCARDS=infocards(), SHOWCASE=showcase(),
                  PROMO_OCC=promo_occ(), ROUND=round_(), PICKS=picks(), BANNERS2=banners2(), DEPTS=depts(), HSET=hset(),
-                 BRANDS=brands(), FOOTER_CATS=footer_cats())
+                 BRANDS=brands(), FOOTER_CATS=footer_cats(), PAYMENTS=payments())
     for k, v in parts.items():
         t = t.replace('{{%s}}' % k, v)
     assert '{{' not in t, re.findall(r'\{\{\w+\}\}', t)

@@ -474,8 +474,9 @@ a:hover > .art .ico, .pcard:hover .art .ico, .catcard:hover .art .ico { transfor
 .footer__selects { display: flex; gap: 10px; flex-wrap: wrap; }
 .footer__selects select { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.3); border-radius: 10px; height: 40px; padding: 0 12px; font: inherit; font-size: 14px; }
 .footer__selects option { color: #000; }
-.pay { display: flex; gap: 8px; flex-wrap: wrap; }
-.pay span { background: #fff; color: var(--ink); font-weight: 700; font-size: 12px; padding: 6px 10px; border-radius: 6px; letter-spacing: .02em; }
+.pay { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pay li { margin: 0; line-height: 0; }
+.pay svg { width: 38px; height: 24px; border-radius: 4px; }
 
 /* ===== floating ===== */
 .fab { position: fixed; right: 14px; bottom: 14px; z-index: 80; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; }

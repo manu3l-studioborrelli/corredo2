@@ -13,12 +13,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/styles.css?v=7">
+<link rel="stylesheet" href="css/styles.css?v=8">
 </head>
 <body>
 <!--
   DESIGN PREVIEW — Il Corredo 2 (homepage)
-  GENERATED FILE: edit tools/template.html + tools/build_home.py (data in data/catalog.json), then run `python tools/build_home.py`.
+  GENERATED FILE: edit tools/template.html + tools/build_home.py / build_pages.py (data in data/catalog.csv), then run `python tools/build.py`.
   Mobile-first static HTML/CSS/JS, structure mirrors the "Maximize" Shopify theme homepage.
   Products, categories, prices, brands, colours and bundle offers come from the client catalogue; photography is stock (Unsplash) and must be replaced.
   Shipping/returns policies, opening hours and blog posts are still placeholders to be confirmed with the client.
@@ -86,7 +86,7 @@
 <header class="header" id="header">
   <div class="container header__main">
     <button class="menu-btn" data-open="menu" aria-label="Apri il menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><use href="#u-menu"/></svg><span>Menu</span></button>
-    <a class="logo" href="#" aria-label="Il Corredo 2 — Home"><img src="assets/logo.svg" alt="Il Corredo 2" width="886" height="113"></a>
+    <a class="logo" href="index.html" aria-label="Il Corredo 2 — Home"><img src="assets/logo.svg" alt="Il Corredo 2" width="886" height="113"></a>
     <form class="search" role="search" data-search>
       <label class="sr-only" for="sc">Categoria</label>
       <select id="sc">{{SEARCH_OPTIONS}}</select>
@@ -256,7 +256,7 @@
         <label class="sr-only" for="lang">Lingua</label><select id="lang"><option>Italiano</option><option>English</option></select>
         <label class="sr-only" for="cur">Valuta</label><select id="cur"><option>Italia (EUR €)</option></select>
       </div>
-      <div class="pay" aria-label="Metodi di pagamento"><span>VISA</span><span>Mastercard</span><span>PayPal</span><span>Apple Pay</span><span>Google Pay</span></div>
+      <div class="pay-wrap" aria-label="Metodi di pagamento">{{PAYMENTS}}</div>
     </div>
   </div>
 </footer>
@@ -267,6 +267,6 @@
 </div>
 <div class="note" role="note"><span>Bozza di design per revisione · immagini, prezzi e testi indicativi</span><button aria-label="Chiudi avviso"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><use href="#u-x"/></svg></button></div>
 <div class="toast" role="status" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><use href="#u-check"/></svg><span></span></div>
-<script src="js/main.js?v=7"></script>
+<script src="js/main.js?v=8"></script>
 </body>
 </html>
