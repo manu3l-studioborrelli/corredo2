@@ -167,12 +167,12 @@
     list.innerHTML = cart.map(function (it, k) {
       return '<div class="cart-item"><div class="art"><img src="' + it.img + '" alt=""></div>' +
         '<div><h4>' + it.t + '</h4><div class="qty"><button data-q="-1" data-k="' + k + '" aria-label="Diminuisci"><svg class="i"><use href="#u-minus"/></svg></button><output>' + it.q + '</output><button data-q="1" data-k="' + k + '" aria-label="Aumenta"><svg class="i"><use href="#u-plus"/></svg></button></div></div>' +
-        '<div style="text-align:right"><strong>' + (it.p === 0 ? 'Omaggio' : fmt(it.p * it.q)) + '</strong><br><button class="rm" data-rm="' + k + '">Rimuovi</button></div></div>';
+        '<div style="text-align:right"><strong>' + (it.free ? 'Omaggio' : fmt(it.p * it.q)) + '</strong><br><button class="rm" data-rm="' + k + '">Rimuovi</button></div></div>';
     }).join('');
   }
   function add(d, qty, openCart) {
     var f = cart.filter(function (c) { return c.id === d.id; })[0];
-    if (f) f.q += qty; else cart.push({ id: d.id, t: d.t, p: d.p, q: qty, img: d.img });
+    if (f) f.q += qty; else cart.push({ id: d.id, t: d.t, p: d.p, q: qty, img: d.img, free: !!d.free });
     render(); if (openCart) open('cart'); else toast('Aggiunto al carrello');
   }
   document.addEventListener('click', function (e) {

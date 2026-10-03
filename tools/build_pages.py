@@ -11,7 +11,11 @@ from build_home import (ROOT, esc, PRODUCTS, BY_ID, CATS, COLORS, CAROUSEL_ORDER
                         cat_url, product_url, cat_count, cat_min, subs, P216_IMAGES, PALETTES)
 
 STOCK_LABEL = {'in': 'Disponibile', 'low': 'Ultimi pezzi', 'out': 'Esaurito'}
-AUD = {'donna': 'Donna', 'uomo': 'Uomo', 'uomo e donna': 'Uomo e donna', 'bimbi': 'Bambini', 'neonato': 'Neonato', 'casa': 'Casa'}
+AUD = {'donna': 'Donna', 'uomo': 'Uomo', 'bimbi': 'Bambini', 'neonato': 'Neonato'}  # gender facet; 'uomo e donna' counts for both, 'casa' is not gendered
+
+
+def aud_tokens(p):
+    return [t for t in ('donna', 'uomo', 'bimbi', 'neonato') if t in p['audience'].replace('uomo e donna', 'donna uomo').split()]
 SEASON = {"tutto l'anno": "Tutto l'anno", 'inverno': 'Inverno', 'estate': 'Estate'}
 PRICE_BANDS = [('0-5', 'Fino a 5 €', 0, 5), ('5-10', 'Da 5 a 10 €', 5, 10), ('10-20', 'Da 10 a 20 €', 10, 20), ('20-999', 'Oltre 20 €', 20, 999)]
 WA = 'https://wa.me/393533545919'
@@ -33,7 +37,7 @@ def page(title, desc, main, script, bodyclass=''):
     head = re.sub(r'<title>.*?</title>', '<title>%s</title>' % esc(title), head, flags=re.S)
     head = re.sub(r'(<meta name="description" content=")[^"]*', lambda m: m.group(1) + esc(desc), head)
     head = head.replace('</head>', '<link rel="stylesheet" href="css/pages.css?v=2">\n</head>')
-    tail = tail.replace('<script src="js/main.js?v=8"></script>', '<script src="js/main.js?v=8"></script>\n<script src="js/%s?v=2"></script>' % script)
+    tail = tail.replace('<script src="js/main.js?v=9"></script>', '<script src="js/main.js?v=9"></script>\n<script src="js/%s?v=3"></script>' % script)
     return head + '<main id="main">\n' + main + '\n</main>' + tail
 
 
@@ -99,10 +103,7 @@ def cat_card(p, grp, idx):
     if len(p['image']) > 1 and p['image'][1] != p['image'][0]:
         img2 = '<img class="alt" src="%s" alt="" loading="lazy" decoding="async">' % u(p['image'][1])
     url = product_url(p)
-    if p['price'] is None:
-        price = '<div class="price price--ask"><span class="price__ask">Prezzo in negozio</span></div>'
-        btn = '<a class="btn btn--sm btn--ghost" href="%s?text=%s" target="_blank" rel="noopener">Chiedi il prezzo</a>' % (WA, esc('Ciao! Vorrei il prezzo di: ' + p['title']).replace(' ', '%20'))
-    elif stock == 'out':
+    if stock == 'out':
         price = price_html(p)
         btn = '<button class="btn btn--sm" disabled>Esaurito</button>'
     elif needs_options(p):
@@ -127,7 +128,7 @@ def cat_card(p, grp, idx):
     %(btn)s
   </div>
 </article>''' % dict(oos=' is-out' if stock == 'out' else '', i=idx, id=p['id'], g=slug(grp), brand=esc(slug(p['brand'].split(',')[0])) if p['brand'] else '',
-                     colors=colors, price='' if p['price'] is None else p['price'], aud=slug(p['audience']), season=slug(p['season']),
+                     colors=colors, price='' if p['noPrice'] else p['price'], aud=' '.join(aud_tokens(p)), season=slug(p['season']),
                      stock=stock, offer=1 if is_offer(p) else 0, title=esc(p['title']), url=url,
                      art=art(p['image'][0], bg, fg).replace('</div>', img2 + '</div>'), badges=badges, heart=U('heart'),
                      vendor=vendor(p), desc=esc(card_desc(p)), sw=swatches(p), priceh=price, slabel=STOCK_LABEL[stock], btn=btn)
@@ -165,19 +166,19 @@ def filters_html(col):
         col_opts.append((slug(k), k.capitalize(), n, sw))
     price_opts = []
     for val, lab, lo, hi in PRICE_BANDS:
-        n = sum(1 for p in items if p['price'] is not None and lo <= p['price'] < hi) if hi != 999 else sum(1 for p in items if p['price'] is not None and p['price'] >= lo)
+        n = sum(1 for p in items if not p['noPrice'] and lo <= p['price'] < hi) if hi != 999 else sum(1 for p in items if not p['noPrice'] and p['price'] >= lo)
         if n:
             price_opts.append((val, lab, n, ''))
-    aud_c = cnt(lambda p: p['audience'])
-    aud_opts = [(slug(k), AUD.get(k, k), n, '') for k, n in aud_c.most_common()]
+    aud_c = __import__('collections').Counter(t for p in items for t in aud_tokens(p))
+    aud_opts = [(k, AUD[k], aud_c[k], '') for k in ('donna', 'uomo', 'bimbi', 'neonato') if aud_c[k]]
     sea_c = cnt(lambda p: p['season'])
     sea_opts = [(slug(k), SEASON.get(k, k), n, '') for k, n in sea_c.most_common()]
     offers = sum(1 for p in items if is_offer(p))
     toggles = '''<label class="switch"><input type="checkbox" data-f="avail"><span class="switch__ui"></span>Solo prodotti disponibili</label>'''
     if offers and col['kind'] != 'offers':
         toggles += '''<label class="switch"><input type="checkbox" data-f="offer"><span class="switch__ui"></span>Solo in offerta <small>(%d)</small></label>''' % offers
-    body = toggles + facet_checks('sub', col['group_label'], sub_opts) + facet_checks('price', 'Prezzo', price_opts) + facet_checks('brand', 'Marca', brand_opts) \
-        + facet_checks('color', 'Colore', col_opts) + facet_checks('aud', 'Per chi', aud_opts) + facet_checks('season', 'Stagione', sea_opts)
+    body = toggles + facet_checks('aud', 'Genere', aud_opts) + facet_checks('sub', col['group_label'], sub_opts) + facet_checks('price', 'Prezzo', price_opts) \
+        + facet_checks('brand', 'Marca', brand_opts) + facet_checks('color', 'Colore', col_opts) + facet_checks('season', 'Stagione', sea_opts)
     return '''<aside class="drawer filters" id="filters" aria-hidden="true" aria-label="Filtri">
   <div class="drawer__head"><h2>Filtri</h2><button class="icon-btn" data-close aria-label="Chiudi">%(x)s</button></div>
   <form class="drawer__body filters__body" data-filters onsubmit="return false">%(body)s</form>
@@ -203,7 +204,7 @@ FAQ = [('Posso ritirare l&rsquo;ordine in negozio?', 'Sì: ordina online e ritir
 
 def seo_text(col):
     items = col['items']
-    priced = [p['price'] for p in items if p['price'] is not None]
+    priced = [p['price'] for p in items if not p['noPrice']]
     if col['kind'] == 'category':
         sub = ', '.join('%s (%d)' % (k.lower(), n) for k, n in __import__('collections').Counter(p['subcategory'] for p in items).most_common(6))
         brands = sorted({p['brand'].split(',')[0] for p in items if p['brand']})
@@ -221,9 +222,9 @@ def seo_text(col):
 def collection_page(col):
     items = col['items']
     n = len(items)
-    priced = [p['price'] for p in items if p['price'] is not None]
+    priced = [p['price'] for p in items if not p['noPrice']]
     if col['kind'] == 'category':
-        lead = ('%d prodotti, da %s a %s.' % (n, eur_s(min(priced)), eur_s(max(priced)))) if priced else '%d prodott%s: prezzi in negozio.' % (n, 'o' if n == 1 else 'i')
+        lead = ('%d prodotti, da %s a %s.' % (n, eur_s(min(priced)), eur_s(max(priced)))) if priced else '%d prodott%s.' % (n, 'o' if n == 1 else 'i')
     elif col['kind'] == 'offers':
         lead = 'Multipacchetti, prezzi scontati e promozioni del negozio.'
     else:
@@ -314,7 +315,7 @@ def product_page():
     color_opts = ''.join('<option value="%s">%s</option>' % (c['key'], c['name']) for c in colors)
     size_opts = ''.join('<option value="%s">%s</option>' % (s, s) for s in SIZES)
     rows = ''.join(row_tpl % (i, i + 1, ' <em>in omaggio</em>' if i == 2 else '', i + 1, color_opts, i + 1, size_opts) for i in range(3))
-    rec = [q for q in PRODUCTS if q['category'] in ('Abbigliamento uomo', 'Intimo uomo') and q['price'] and q['stock'] != 'out' and q['id'] != 'P216'][:8]
+    rec = [q for q in PRODUCTS if q['category'] in ('Abbigliamento uomo', 'Intimo uomo') and not q['noPrice'] and q['stock'] != 'out' and q['id'] != 'P216'][:8]
     rec_cards = ''.join(pcard(q) for q in rec)
     others = []
     for k, c in enumerate(['Abbigliamento uomo', 'Intimo uomo', 'Pigiami e notte', 'Sport e tute', 'Calze e calzini', 'Biancheria letto']):

@@ -48,15 +48,16 @@ def load():
         rows.append(dict(
             id=r['product_id'], handle=slug(clean_name(r['product_name'])) + '-' + r['product_id'].lower(),
             category=r['category'], subcategory=r['subcategory'], title=clean_name(r['product_name']),
-            brand=r['brand'].strip(), audience=r['audience'], price=money(r['price_eur']),
+            brand=r['brand'].strip(), audience=r['audience'], price=money(r['price_eur']) or 0.0, noPrice=money(r['price_eur']) is None,
             priceType=r['price_type'], unit=r['unit'], packQty=int(r['pack_qty'] or 1), bundle=bundle,
             compareAt=money(prev.group(1)) if prev else None, sizes=r['sizes'].strip(), colors=cols,
             season=r['season_hint'], posts=int(r['posts_count'] or 1)))
     return rows
 
 
+# Products without a price in the sheet get a placeholder price of 0,00 € (noPrice=True).
 # P216 has no price in the sheet: demo value so the product page can be shown. Confirm with the client.
-DEMO_OVERRIDES = {'P216': dict(price=9.99, priceType='esatto', priceIsDemo=True)}
+DEMO_OVERRIDES = {'P216': dict(price=9.99, priceType='esatto', priceIsDemo=True, noPrice=False)}
 
 
 def cat_url(c, sub=None):

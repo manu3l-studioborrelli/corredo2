@@ -162,7 +162,7 @@
   /* ---------- add to cart ---------- */
   function line(color, size, free) {
     var c = COLOR[color];
-    return { id: D.id + '-' + color + '-' + size + (free ? '-omaggio' : ''), t: D.title + ' — ' + c.name + ' / ' + size + (free ? ' (in omaggio)' : ''), p: free ? 0 : D.price, img: D.thumbs[c.img] };
+    return { id: D.id + '-' + color + '-' + size + (free ? '-omaggio' : ''), t: D.title + ' — ' + c.name + ' / ' + size + (free ? ' (in omaggio)' : ''), p: free ? 0 : D.price, free: !!free, img: D.thumbs[c.img] };
   }
   function add() {
     if (addBtn.disabled) return;

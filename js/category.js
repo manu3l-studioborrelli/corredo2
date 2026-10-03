@@ -32,7 +32,7 @@
     if (s.offer && d.offer !== '1') return false;
     if (s.sub.length && s.sub.indexOf(d.sub) < 0) return false;
     if (s.brand.length && s.brand.indexOf(d.brand) < 0) return false;
-    if (s.aud.length && s.aud.indexOf(d.aud) < 0) return false;
+    if (s.aud.length) { var as = d.aud.split(' '); if (!s.aud.some(function (x) { return as.indexOf(x) > -1; })) return false; }
     if (s.season.length && s.season.indexOf(d.season) < 0) return false;
     if (s.color.length) { var cs = d.colors.split(','); if (!s.color.some(function (x) { return cs.indexOf(x) > -1; })) return false; }
     if (s.price.length && !inBand(d.price, s.price)) return false;
